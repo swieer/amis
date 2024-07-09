@@ -203,6 +203,7 @@ export interface TableState {
     target: HTMLTableRowElement;
   } | null;
   sort?: SortProps;
+  clickRowIndex: number | undefined;
 }
 
 export const DefaultCellWidth = 40;
@@ -766,6 +767,8 @@ export class Table extends React.PureComponent<TableProps, TableState> {
     record?: any,
     rowIndex?: number
   ) {
+    this.setState({clickRowIndex: rowIndex});
+    console.log('state -- ', this.state);
     const {rowSelection, onRow} = this.props;
 
     if (onRow && onRow.onRowClick) {
@@ -988,6 +991,10 @@ export class Table extends React.PureComponent<TableProps, TableState> {
     ); // == 匹配 否则'3'、3匹配不上
   }
 
+  isClickClass(index: number) {
+    return index === this.state.clickRowIndex;
+  }
+
   renderRow(data: any, rowIndex: number, levels: Array<number>) {
     const {
       rowSelection,
@@ -1025,7 +1032,7 @@ export class Table extends React.PureComponent<TableProps, TableState> {
         ? expandable.expandedRowClassName(data, rowIndex)
         : '';
     const isExpanded = this.isExpanded(data);
-
+    const isClick = this.isClickClass(rowIndex);
     const checkboxProps =
       rowSelection && rowSelection.getCheckboxProps
         ? rowSelection.getCheckboxProps(data, rowIndex)
@@ -1042,6 +1049,7 @@ export class Table extends React.PureComponent<TableProps, TableState> {
       <Row
         key={`row-${rowIndex}`}
         data={data}
+        isClick={isClick}
         rowIndex={rowIndex}
         levels={levels.join(',')}
         columns={columns}

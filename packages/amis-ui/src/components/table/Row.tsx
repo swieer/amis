@@ -37,6 +37,7 @@ export interface Props extends ThemeProps {
   isRightExpandable?: boolean;
   isLeftExpandable?: boolean;
   isChecked: boolean;
+  isClick: boolean;
   rowClassName?: Function;
   onExpand?: Function;
   onCollapse?: Function;
@@ -174,6 +175,7 @@ class BodyRow extends React.PureComponent<Props> {
     const {
       classnames: cx,
       isChecked,
+      isClick,
       selectable,
       expandable,
       draggable,
@@ -326,7 +328,6 @@ class BodyRow extends React.PureComponent<Props> {
           {isExpandableRow || hasChildrenRow ? this.getExpandedIcons() : null}
         </Cell>
       ) : null;
-
     return [
       <tr
         ref={this.domRef}
@@ -337,6 +338,7 @@ class BodyRow extends React.PureComponent<Props> {
           'Table-row',
           `Table-row-level-${level}`,
           rowClassNameClass,
+          isClick ? 'is-hovered' : '',
           {
             'Table-row-disabled': !!rest.disabled
           }

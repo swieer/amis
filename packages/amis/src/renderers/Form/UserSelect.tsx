@@ -194,6 +194,7 @@ export default class UserSelectControl extends React.Component<
       resolveEventData(this.props, {
         value: newValue,
         options,
+        selectedItems: value,
         items: options // 为了保持名字统一
       })
     );

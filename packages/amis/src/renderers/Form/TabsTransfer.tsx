@@ -226,6 +226,7 @@ export class BaseTabsTransferRenderer<
       resolveEventData(this.props, {
         value: newValue,
         options,
+        selectedItems: value,
         items: options // 为了保持名字统一
       })
     );

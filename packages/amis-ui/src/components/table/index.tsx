@@ -234,7 +234,8 @@ export class Table extends React.PureComponent<TableProps, TableState> {
           : [])
       ],
       colWidths: {},
-      hoverRow: null
+      hoverRow: null,
+      clickRowIndex: undefined
     };
   }
 

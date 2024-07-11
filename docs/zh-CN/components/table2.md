@@ -139,39 +139,64 @@ order: 67
 
 ```schema: scope="body"
 {
-  "type": "service",
-  "api": "/api/sample?perPage=5",
-  "body": [
-    {
-      "type": "table2",
-      "source": "$rows",
-      "rowSelection": {
-        "type": "checkbox",
-        "keyField": "id"
-      },
-      "columns": [
-        {
-          "title": "Engine",
-          "name": "engine"
+  "type": "page",
+  "body": {
+    "type": "service",
+    "api": "/api/sample?perPage=5",
+    "body": [
+      {
+        "type": "table2",
+        "source": "$rows",
+        "rowSelection": {
+          "type": "checkbox",
+          "keyField": "id"
         },
-        {
-          "title": "Version",
-          "name": "version"
-        },
-        {
-          "title": "Browser",
-          "name": "browser"
-        },
-        {
-          "title": "Operation",
-          "name": "operation",
-          "type": "button",
-          "label": "删除",
-          "size": "sm"
-        }
-      ]
-    }
-  ]
+        "columns": [
+          {
+            "title": "Engine",
+            "name": "engine"
+          },
+          {
+            "title": "Version",
+            "name": "version"
+          },
+          {
+            "title": "Browser",
+            "name": "browser"
+          },
+          {
+            "type": "operation",
+            "title": "操作",
+            "id": "u:da8114d8e706",
+            "buttons": [
+              {
+                "type": "button",
+                "label": "删除",
+                "behavior": "Delete",
+                "className": "m-r-xs text-danger",
+                "level": "link",
+                "confirmText": "确认要删除数据",
+                "onEvent": {
+                  "click": {
+                    "actions": [
+                      {
+                        "actionType": "toast",
+                        "args": {
+                          "msg": "ddd"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "id": "u:42953b780760",
+              }
+            ],
+            "fixed": "right"
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 

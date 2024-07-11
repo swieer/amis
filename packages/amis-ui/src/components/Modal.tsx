@@ -27,17 +27,27 @@ import isNumber from 'lodash/isNumber';
 
 export const getContainerWithFullscreen =
   (container?: () => HTMLElement | HTMLElement | null) => () => {
-    const envContainer =
+    let envContainer =
       typeof container === 'function' ? container() : container;
 
     // 获取当前全屏元素
     const fullscreenElement = document.fullscreenElement;
+    let componentId = '';
+    const urlId = window.location.href.split('formdatalist/');
+    if (urlId.length > 1) {
+      componentId = urlId[1];
+    }
 
     if (
       fullscreenElement &&
       (!envContainer || !fullscreenElement.contains(envContainer))
     ) {
       return fullscreenElement as HTMLElement;
+    }
+    if (componentId) {
+      if (envContainer?.id !== componentId) {
+        envContainer = document.getElementById(componentId);
+      }
     }
     return envContainer || null;
   };

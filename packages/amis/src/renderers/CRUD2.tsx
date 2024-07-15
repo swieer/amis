@@ -30,7 +30,8 @@ import {
   isApiOutdated,
   isPureVariable,
   resolveVariableAndFilter,
-  parsePrimitiveQueryString
+  parsePrimitiveQueryString,
+  evalExpressionWithConditionBuilderAsync
 } from 'amis-core';
 import pickBy from 'lodash/pickBy';
 import {Html, SpinnerExtraProps} from 'amis-ui';
@@ -581,6 +582,48 @@ export default class CRUD2 extends React.Component<CRUD2Props, any> {
 
   updateQuery(newQuery: any = {}) {
     this.props.store;
+  }
+
+  async setData(
+    values: any,
+    replace?: boolean,
+    index?: number | string,
+    condition?: any
+  ) {
+    const {store} = this.props;
+    const len = store.data.rows.length;
+
+    if (index !== undefined) {
+      let items = [...store.data.items];
+      const indexs = String(index).split(',');
+      indexs.forEach(i => {
+        const intIndex = Number(i);
+        items.splice(intIndex, 1, values);
+      });
+      // 更新指定行记录，只需要提供行记录即可
+      return store.updateData({items}, undefined, replace);
+    } else if (condition !== undefined) {
+      let items = [...store.data.items];
+      for (let i = 0; i < len; i++) {
+        const item = items[i];
+        const isUpdate = await evalExpressionWithConditionBuilderAsync(
+          condition,
+          item
+        );
+        if (isUpdate) {
+          items.splice(i, 1, values);
+        }
+      }
+
+      // 更新指定行记录，只需要提供行记录即可
+      return store.updateData({items}, undefined, replace);
+    } else {
+      const data = {
+        ...values,
+        rows: values.rows ?? values.items // 做个兼容
+      };
+      return store.updateData(data, undefined, replace);
+    }
   }
 
   /**

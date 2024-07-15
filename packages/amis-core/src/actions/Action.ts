@@ -156,7 +156,6 @@ export const runActions = async (
   if (!Array.isArray(actions)) {
     actions = [actions];
   }
-
   for (const actionConfig of actions) {
     let actionInstrance = getActionByType(actionConfig.actionType);
 

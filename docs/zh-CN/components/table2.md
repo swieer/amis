@@ -10,6 +10,383 @@ order: 67
 
 表格展示，不支持配置初始化接口初始化数据域，所以需要搭配类似像`Service`这样的，具有配置接口初始化数据域功能的组件，或者手动进行数据域初始化，然后通过`source`属性，获取数据链中的数据，完成数据展示。
 
+## crud2 测试(zhengxi)
+
+column 里 select 选中后赋值功能测试
+
+```schema: scope="body"
+{
+  "type": "page",
+  "data": {
+    "i": "1"
+  },
+  "body": [
+    {
+      "type": "container",
+      "className": "mb-2",
+      "body": [
+        {
+          "type": "button",
+          "label": "更新index为1和3的行记录",
+          "onEvent": {
+            "click": {
+              "actions": [
+                {
+                  "actionType": "setValue",
+                  "componentId": "zhengxitable",
+                  "args": {
+                    "value": {
+                      "engine": "amis",
+                      "browser": "Chrome",
+                      "platform": "Mac Pro",
+                      "version": "8",
+                      "grade": "Y",
+                      "badgeText": "你好！",
+                      "id": 1234
+                    },
+                    "index": "${i}"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "service",
+      "id": "u:b25a8ef0050b",
+      "api": {
+        "method": "get",
+        "url": "/api/mock2/sample?perPage=5"
+      },
+      "body": [
+        {
+          "type": "crud2",
+          "mode": "table2",
+          "id": "zhengxitable",
+          "title": "引擎列表",
+          "source": "$rows",
+          "columns": [
+            {
+              "type": "select",
+              "label": "编码",
+              "name": "a",
+              "searchable": true,
+              "selectMode": "table",
+              "onEvent": {
+                "change": {
+                  "weight": 0,
+                  "actions": [
+                    {
+                      "ignoreError": false,
+                      "actionType": "setValue",
+                      "componentId": "zhengxitable",
+                      "args": {
+                        "value": {"&": "${event.data.__rendererData}", "position": "${event.data.selectedItems.position}" },
+                        "index": "${index}"
+                      }
+                    }
+                  ]
+                }
+              },
+              "columns": [
+                {
+                  "name": "label",
+                  "label": "英雄"
+                },
+                {
+                  "name": "position",
+                  "label": "位置"
+                }
+              ],
+              "options": [
+                {
+                  "i": "0",
+                  "label": "诸葛亮",
+                  "value": "0",
+                  "position": "中单"
+                },
+                {
+                  "i": "1",
+                  "label": "曹操",
+                  "value": "1",
+                  "position": "上单"
+                },
+                {
+                  "i": "2",
+                  "label": "钟无艳",
+                  "value": "2",
+                  "position": "上单"
+                },
+                {
+                  "i": "3",
+                  "label": "李白",
+                  "value": "3",
+                  "position": "打野"
+                },
+                {
+                  "i": "4",
+                  "label": "韩信",
+                  "value": "4",
+                  "position": "打野"
+                },
+                {
+                  "i": "5",
+                  "label": "云中君",
+                  "value": "5",
+                  "position": "打野"
+                }
+              ]
+            },
+            {
+              "type": "tpl",
+              "name": "position",
+              "id": "u:c7bf6e9fe37c",
+              "placeholder": "-",
+              "title": "名称",
+              "tpl": "",
+              "wrapperComponent": ""
+            },
+            {
+              "name": "engine",
+              "label": "Engine",
+              "id": "u:4aa2e9034698",
+              "inline": true
+            },
+            {
+              "name": "version",
+              "label": "Version",
+              "id": "u:8b4cb96ca2bf",
+              "inline": true,
+              "tpl": "${version}"
+            }
+          ],
+          "selectable": true,
+          "multiple": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+table2 column 里 select 选中后赋值功能测试
+
+```schema: scope="body"
+{
+  "type": "page",
+  "data": {
+    "i": "1"
+  },
+  "body": [
+    {
+      "type": "container",
+      "className": "mb-2",
+      "body": [
+        {
+          "type": "button",
+          "label": "更新index为1和3的行记录",
+          "onEvent": {
+            "click": {
+              "actions": [
+                {
+                  "actionType": "setValue",
+                  "componentId": "zhengxitable",
+                  "args": {
+                    "value": {
+                      "engine": "amis",
+                      "browser": "Chrome",
+                      "platform": "Mac Pro",
+                      "version": "8",
+                      "grade": "Y",
+                      "badgeText": "你好！",
+                      "id": 1234
+                    },
+                    "index": "${i}"
+                  }
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "type": "service",
+      "id": "u:b25a8ef0050b",
+      "api": {
+        "method": "get",
+        "url": "/api/mock2/sample?perPage=5"
+      },
+      "body": [
+        {
+          "type": "table2",
+          "id": "zhengxitable",
+          "title": "引擎列表",
+          "source": "$rows",
+          "columns": [
+            {
+              "type": "select",
+              "label": "编码",
+              "name": "a",
+              "searchable": true,
+              "selectMode": "table",
+              "onEvent": {
+                "change": {
+                  "weight": 0,
+                  "actions": [
+                    {
+                "actionType": "toast",
+                "args": {
+                  "msg": "${event.data.__rendererData|json}"
+                }
+              },
+                    {
+                      "ignoreError": false,
+                      "actionType": "setValue",
+                      "componentId": "zhengxitable",
+                      "args": {
+                        "value": {"&": "${event.data.__rendererData}", "position": "${event.data.selectedItems.position}" },
+                        "index": "${index}"
+                      }
+                    }
+                  ]
+                }
+              },
+              "columns": [
+                {
+                  "name": "label",
+                  "label": "英雄"
+                },
+                {
+                  "name": "position",
+                  "label": "位置"
+                }
+              ],
+              "options": [
+                {
+                  "i": "0",
+                  "label": "诸葛亮",
+                  "value": "0",
+                  "position": "中单"
+                },
+                {
+                  "i": "1",
+                  "label": "曹操",
+                  "value": "1",
+                  "position": "上单"
+                },
+                {
+                  "i": "2",
+                  "label": "钟无艳",
+                  "value": "2",
+                  "position": "上单"
+                },
+                {
+                  "i": "3",
+                  "label": "李白",
+                  "value": "3",
+                  "position": "打野"
+                },
+                {
+                  "i": "4",
+                  "label": "韩信",
+                  "value": "4",
+                  "position": "打野"
+                },
+                {
+                  "i": "5",
+                  "label": "云中君",
+                  "value": "5",
+                  "position": "打野"
+                }
+              ]
+            },
+            {
+              "type": "tpl",
+              "name": "position",
+              "id": "u:c7bf6e9fe37c",
+              "placeholder": "-",
+              "title": "名称",
+              "tpl": "",
+              "wrapperComponent": ""
+            },
+            {
+              "name": "engine",
+              "label": "Engine",
+              "id": "u:4aa2e9034698",
+              "inline": true
+            },
+            {
+              "name": "version",
+              "label": "Version",
+              "id": "u:8b4cb96ca2bf",
+              "inline": true,
+              "tpl": "${version}"
+            }
+          ],
+          "selectable": true,
+          "multiple": true
+        }
+      ]
+    }
+  ]
+}
+```
+
+## InputTable setValue 测试
+
+```schema: scope="body"
+{
+  "type": "page",
+  "data": {
+      "table": [
+        {
+          "a": "a1",
+          "b": "b1",
+          "c": "c1"
+        },
+        {
+          "a": "a2",
+          "b": "b2",
+          "c": "c2"
+        },
+        {
+          "a": "a3",
+          "b": "b3",
+          "c": "c3"
+        }
+      ]
+    },
+  "body": [
+    {
+      "type": "input-table",
+      "name": "table",
+      "label": "Table",
+      "addable": true,
+      "needConfirm": false,
+      "columns": [
+        {
+          "label": "A",
+          "name": "a",
+          "type": "input-text"
+        },
+        {
+          "label": "B",
+          "name": "b",
+          "type": "select",
+          "options": ["b1", "b2", "b3"]
+        }, {
+          "label": "C",
+          "name": "c",
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## 基本用法
 
 可配置表头（`title`）、表尾(`footer`)，同时支持文本或者 schema 类型。

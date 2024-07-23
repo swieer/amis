@@ -591,7 +591,6 @@ export default class CRUD2 extends React.Component<CRUD2Props, any> {
     condition?: any
   ) {
     const {store} = this.props;
-    const len = store.data.rows.length;
 
     if (index !== undefined) {
       let items = [...store.data.items];
@@ -604,6 +603,8 @@ export default class CRUD2 extends React.Component<CRUD2Props, any> {
       return store.updateData({items}, undefined, replace);
     } else if (condition !== undefined) {
       let items = [...store.data.items];
+      const len = items.length;
+
       for (let i = 0; i < len; i++) {
         const item = items[i];
         const isUpdate = await evalExpressionWithConditionBuilderAsync(

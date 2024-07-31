@@ -53,6 +53,7 @@
     "scripts/mockApiPlugin.ts",
     "packages/amis-ui/src/custom.d.ts",
     "examples/polyfills/cloest.js",
-    "examples/polyfills/classList.js"
+    "examples/polyfills/classList.js",
+    "packages/amis-editor/examples/component/**/*"
   ]
 }

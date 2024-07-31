@@ -958,7 +958,6 @@ export default class CRUD2 extends React.Component<CRUD2Props, any> {
       pickerMode,
       onSelect
     } = this.props;
-
     let newItems = items;
     let newUnSelectedItems = unSelectedItems;
 

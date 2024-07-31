@@ -17,157 +17,227 @@ column 里 select 选中后赋值功能测试
 ```schema: scope="body"
 {
   "type": "page",
-  "data": {
-    "i": "1"
-  },
-  "body": [
-    {
-      "type": "container",
-      "className": "mb-2",
-      "body": [
-        {
-          "type": "button",
-          "label": "更新index为1和3的行记录",
-          "onEvent": {
-            "click": {
-              "actions": [
-                {
-                  "actionType": "setValue",
-                  "componentId": "zhengxitable",
-                  "args": {
-                    "value": {
-                      "engine": "amis",
-                      "browser": "Chrome",
-                      "platform": "Mac Pro",
-                      "version": "8",
-                      "grade": "Y",
-                      "badgeText": "你好！",
-                      "id": 1234
-                    },
-                    "index": "${i}"
-                  }
-                }
-              ]
-            }
-          }
-        }
-      ]
+  "body": {
+    "type": "page",
+    "data": {
+      "i": "1"
     },
-    {
-      "type": "service",
-      "id": "u:b25a8ef0050b",
-      "api": {
-        "method": "get",
-        "url": "/api/mock2/sample?perPage=5"
-      },
-      "body": [
-        {
-          "type": "crud2",
-          "mode": "table2",
-          "id": "zhengxitable",
-          "title": "引擎列表",
-          "source": "$rows",
-          "columns": [
-            {
-              "type": "select",
-              "label": "编码",
-              "name": "a",
-              "searchable": true,
-              "selectMode": "table",
-              "onEvent": {
-                "change": {
-                  "weight": 0,
-                  "actions": [
-                    {
-                      "ignoreError": false,
-                      "actionType": "setValue",
-                      "componentId": "zhengxitable",
-                      "args": {
-                        "value": {"&": "${event.data.__rendererData}", "position": "${event.data.selectedItems.position}" },
-                        "index": "${index}"
+    "body": [
+      {
+        "type": "service",
+        "id": "u:b25a8ef0050b",
+        "api": {
+          "method": "get",
+          "url": "/api/mock2/sample?perPage=5"
+        },
+        "body": [
+          {
+            "type": "crud2",
+            "mode": "table2",
+            "id": "zhengxitable",
+            "title": "引擎列表",
+            "source": "$rows",
+            "headerToolbar": [
+              {
+                "type": "flex",
+                "direction": "row",
+                "justify": "flex-start",
+                "alignItems": "stretch",
+                "style": {
+                  "position": "static"
+                },
+                "items": [
+                  {
+                    "type": "container",
+                    "body": [
+                      {
+                        "type": "flex",
+                        "direction": "row",
+                        "justify": "flex-start",
+                        "alignItems": "stretch",
+                        "style": {
+                          "position": "static"
+                        },
+                        "items": [],
+                        "id": "u:a5abb66b0b39"
+                      },
+                      {
+                        "type": "button",
+                        "label": "详情",
+                        "className": "m-r-xs",
+                        "behavior": "BulkEdit",
+                        "disabledOn": "${selectedItems != null && selectedItems.length < 1}",
+                        "onEvent": {
+                          "click": {
+                            "actions": [
+                              {
+                                "actionType": "toast",
+                                "args": {
+                                  "msg": "已选择${selectedItems|json}"
+                                }
+                              }
+                            ]
+                          }
+                        },
+                        "id": "u:8912d816d0f1",
+                        "themeCss": {
+                          "className": {
+                            "font:default": {
+                              "color": "var(--colors-neutral-fill-11)"
+                            },
+                            "background:default": "var(--colors-brand-5)",
+                            "border:default": {
+                              "top-border-color": "var(--colors-brand-5)",
+                              "left-border-color": "var(--colors-brand-5)",
+                              "right-border-color": "var(--colors-brand-5)",
+                              "bottom-border-color": "var(--colors-brand-5)"
+                            }
+                          }
+                        },
+                        "level": "primary",
+                        "disabledOn": "${selectedItems == null || selectedItems.length < 1}",
+                        "disabled": false
                       }
-                    }
-                  ]
-                }
+                    ],
+                    "wrapperBody": false,
+                    "style": {
+                      "flexGrow": 1,
+                      "flex": "1 1 auto",
+                      "position": "static",
+                      "display": "flex",
+                      "flexDirection": "row",
+                      "flexWrap": "nowrap",
+                      "alignItems": "stretch",
+                      "justifyContent": "flex-start"
+                    },
+                    "id": "u:1a12d3ea49a4",
+                    "isFixedHeight": false
+                  },
+                  {
+                    "type": "container",
+                    "wrapperBody": false,
+                    "style": {
+                      "flexGrow": 1,
+                      "flex": "1 1 auto",
+                      "position": "static",
+                      "display": "flex",
+                      "flexDirection": "row",
+                      "flexWrap": "nowrap",
+                      "alignItems": "stretch",
+                      "justifyContent": "flex-end"
+                    },
+                    "id": "u:dc53efc20252",
+                    "isFixedHeight": false
+                  }
+                ],
+                "id": "u:65abca4e90ca"
+              }
+            ],
+            "columns": [
+              {
+                "type": "select",
+                "label": "编码",
+                "name": "a",
+                "searchable": true,
+                "selectMode": "table",
+                "onEvent": {
+                  "change": {
+                    "weight": 0,
+                    "actions": [
+                      {
+                        "ignoreError": false,
+                        "actionType": "setValue",
+                        "componentId": "zhengxitable",
+                        "args": {
+                          "value": {
+                            "&": "${event.data.__rendererData}",
+                            "position": "${event.data.selectedItems.position}"
+                          },
+                          "index": "${index}"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "columns": [
+                  {
+                    "name": "label",
+                    "label": "英雄"
+                  },
+                  {
+                    "name": "position",
+                    "label": "位置"
+                  }
+                ],
+                "options": [
+                  {
+                    "i": "0",
+                    "label": "诸葛亮",
+                    "value": "0",
+                    "position": "中单"
+                  },
+                  {
+                    "i": "1",
+                    "label": "曹操",
+                    "value": "1",
+                    "position": "上单"
+                  },
+                  {
+                    "i": "2",
+                    "label": "钟无艳",
+                    "value": "2",
+                    "position": "上单"
+                  },
+                  {
+                    "i": "3",
+                    "label": "李白",
+                    "value": "3",
+                    "position": "打野"
+                  },
+                  {
+                    "i": "4",
+                    "label": "韩信",
+                    "value": "4",
+                    "position": "打野"
+                  },
+                  {
+                    "i": "5",
+                    "label": "云中君",
+                    "value": "5",
+                    "position": "打野"
+                  }
+                ]
               },
-              "columns": [
-                {
-                  "name": "label",
-                  "label": "英雄"
-                },
-                {
-                  "name": "position",
-                  "label": "位置"
-                }
-              ],
-              "options": [
-                {
-                  "i": "0",
-                  "label": "诸葛亮",
-                  "value": "0",
-                  "position": "中单"
-                },
-                {
-                  "i": "1",
-                  "label": "曹操",
-                  "value": "1",
-                  "position": "上单"
-                },
-                {
-                  "i": "2",
-                  "label": "钟无艳",
-                  "value": "2",
-                  "position": "上单"
-                },
-                {
-                  "i": "3",
-                  "label": "李白",
-                  "value": "3",
-                  "position": "打野"
-                },
-                {
-                  "i": "4",
-                  "label": "韩信",
-                  "value": "4",
-                  "position": "打野"
-                },
-                {
-                  "i": "5",
-                  "label": "云中君",
-                  "value": "5",
-                  "position": "打野"
-                }
-              ]
-            },
-            {
-              "type": "tpl",
-              "name": "position",
-              "id": "u:c7bf6e9fe37c",
-              "placeholder": "-",
-              "title": "名称",
-              "tpl": "",
-              "wrapperComponent": ""
-            },
-            {
-              "name": "engine",
-              "label": "Engine",
-              "id": "u:4aa2e9034698",
-              "inline": true
-            },
-            {
-              "name": "version",
-              "label": "Version",
-              "id": "u:8b4cb96ca2bf",
-              "inline": true,
-              "tpl": "${version}"
-            }
-          ],
-          "selectable": true,
-          "multiple": true
-        }
-      ]
-    }
-  ]
+              {
+                "type": "tpl",
+                "name": "position",
+                "id": "u:c7bf6e9fe37c",
+                "placeholder": "-",
+                "title": "名称",
+                "tpl": "",
+                "wrapperComponent": ""
+              },
+              {
+                "name": "engine",
+                "label": "Engine",
+                "id": "u:4aa2e9034698",
+                "inline": true
+              },
+              {
+                "name": "version",
+                "label": "Version",
+                "id": "u:8b4cb96ca2bf",
+                "inline": true,
+                "tpl": "${version}"
+              }
+            ],
+            "selectable": true,
+            "multiple": true
+          }
+        ]
+      }
+    ]
+  }
 }
 ```
 

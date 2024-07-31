@@ -7,6 +7,7 @@ import {Portal} from 'react-overlays';
 import {Icon} from './icons/index';
 import LayoutList from './layout/index';
 import {cxdData} from 'amis-theme-editor-helper';
+import {registExportButton} from './component/export-button';
 
 // 测试组织属性配置面板的国际化，可以放开如下注释
 // import './renderer/InputTextI18n';
@@ -548,6 +549,11 @@ export default class AMisSchemaEditor extends React.Component<any, any> {
       localStorage.getItem('editting_preview_type') || EditorType.EDITOR;
 
     this.state.schema = this.getSchema(type);
+    try {
+      registExportButton();
+    } catch (error) {
+      console.log('regist audit button error', error);
+    }
   }
 
   getSchema(type: string) {

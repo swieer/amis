@@ -718,7 +718,22 @@ export default class Table2 extends React.Component<Table2Props, object> {
         (props.data !== prevProps.data ||
           (typeof props.source === 'string' && isPureVariable(props.source))))
     ) {
-      Table2.syncRows(store, props, prevProps) && this.syncSelected();
+      // console.log(
+      //   'zhengxi table2 syncSelected -- component did update any change',
+      //   prevProps.source,
+      //   prevProps.value,
+      //   prevProps.items,
+      //   props.source,
+      //   props.value,
+      //   props.items,
+      //   prevProps.source !== props.source,
+      //   prevProps.value !== props.value,
+      //   prevProps.items !== props.items,
+      //   props.store.selectedRows.length,
+      //   prevProps.store.selectedRows.length
+      // );
+      // 自定义组件会引起重载，先屏蔽syncSelected试试
+      Table2.syncRows(store, props, prevProps); // && this.syncSelected();
     } else if (isArrayChildrenModified(prevProps.selected!, props.selected!)) {
       const keyField = store.keyField;
       const prevSelectedRows = store.selectedRows

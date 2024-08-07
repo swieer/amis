@@ -12,6 +12,629 @@ order: 67
 
 ## crud2 测试(zhengxi)
 
+完整 crud 测试
+
+```schema: scope="body"
+{
+  "type": "page",
+  "body": [
+    {
+      "type": "crud2",
+      "id": "u:f9c23237d47f",
+      "mode": "table2",
+      "dsType": "api",
+      "syncLocation": true,
+      "selectable": true,
+      "multiple": true,
+      "primaryField": "id",
+      "loadType": "pagination",
+      "columnsTogglable":"auto",
+      "api": {
+        "url": "/api/mock2/sample?perPage=5",
+        "method": "get"
+      },
+      "filter": {
+        "type": "form",
+        "title": "条件查询",
+        "mode": "inline",
+        "columnCount": 3,
+        "clearValueOnHidden": true,
+        "behavior": [
+          "SimpleQuery"
+        ],
+        "body": [
+          {
+            "name": "engine",
+            "label": "engine",
+            "type": "input-text",
+            "size": "full",
+            "required": false,
+            "behavior": "SimpleQuery",
+            "id": "u:b748b85fec81"
+          },
+          {
+            "name": "browser",
+            "label": "browser",
+            "type": "input-text",
+            "size": "full",
+            "required": false,
+            "behavior": "SimpleQuery",
+            "id": "u:d94366fa7079"
+          },
+          {
+            "name": "platform",
+            "label": "platform",
+            "type": "input-text",
+            "size": "full",
+            "required": false,
+            "behavior": "SimpleQuery",
+            "id": "u:30e0b455c309"
+          },
+          {
+            "name": "version",
+            "label": "version",
+            "type": "input-text",
+            "size": "full",
+            "required": false,
+            "behavior": "SimpleQuery",
+            "id": "u:e2033a532397"
+          },
+          {
+            "name": "grade",
+            "label": "grade",
+            "type": "input-text",
+            "size": "full",
+            "required": false,
+            "behavior": "SimpleQuery",
+            "id": "u:80429a57448c"
+          },
+          {
+            "name": "badgeText",
+            "label": "badgeText",
+            "type": "input-text",
+            "size": "full",
+            "required": false,
+            "behavior": "SimpleQuery",
+            "id": "u:cc1a0c01fade"
+          },
+          {
+            "name": "id",
+            "label": "id",
+            "type": "input-number",
+            "size": "full",
+            "required": false,
+            "behavior": "SimpleQuery",
+            "id": "u:065c4e024378"
+          }
+        ],
+        "actions": [
+          {
+            "type": "reset",
+            "label": "重置",
+            "id": "u:96c727656781"
+          },
+          {
+            "type": "submit",
+            "label": "查询",
+            "level": "primary",
+            "id": "u:0f3e41a9aa6f"
+          }
+        ],
+        "id": "u:4d95ee582193",
+        "feat": "Insert"
+      },
+      "headerToolbar": [
+        {
+          "type": "flex",
+          "direction": "row",
+          "justify": "flex-start",
+          "alignItems": "stretch",
+          "style": {
+            "position": "static"
+          },
+          "items": [
+            {
+              "type": "container",
+              "align": "left",
+              "behavior": [
+                "Insert",
+                "BulkEdit",
+                "BulkDelete"
+              ],
+              "body": [
+                {
+                  "type": "button",
+                  "label": "新增",
+                  "level": "primary",
+                  "className": "m-r-xs",
+                  "behavior": "Insert",
+                  "onEvent": {
+                    "click": {
+                      "actions": [
+                        {
+                          "actionType": "dialog",
+                          "dialog": {
+                            "body": {
+                              "id": "u:2ce2f6bfbd43",
+                              "type": "form",
+                              "title": "新增数据",
+                              "mode": "horizontal",
+                              "dsType": "api",
+                              "feat": "Insert",
+                              "body": [
+                                {
+                                  "name": "engine",
+                                  "label": "engine",
+                                  "type": "input-text"
+                                },
+                                {
+                                  "name": "browser",
+                                  "label": "browser",
+                                  "type": "input-text"
+                                },
+                                {
+                                  "name": "platform",
+                                  "label": "platform",
+                                  "type": "input-text"
+                                },
+                                {
+                                  "name": "version",
+                                  "label": "version",
+                                  "type": "input-text"
+                                },
+                                {
+                                  "name": "grade",
+                                  "label": "grade",
+                                  "type": "input-text"
+                                },
+                                {
+                                  "name": "badgeText",
+                                  "label": "badgeText",
+                                  "type": "input-text"
+                                },
+                                {
+                                  "name": "id",
+                                  "label": "id",
+                                  "type": "input-number"
+                                }
+                              ],
+                              "resetAfterSubmit": true,
+                              "actions": [
+                                {
+                                  "type": "button",
+                                  "actionType": "cancel",
+                                  "label": "取消"
+                                },
+                                {
+                                  "type": "button",
+                                  "actionType": "submit",
+                                  "label": "提交",
+                                  "level": "primary"
+                                }
+                              ],
+                              "onEvent": {
+                                "submitSucc": {
+                                  "actions": [
+                                    {
+                                      "actionType": "search",
+                                      "groupType": "component",
+                                      "componentId": "u:f9c23237d47f"
+                                    }
+                                  ]
+                                }
+                              }
+                            },
+                            "title": "新增数据",
+                            "size": "md",
+                            "actions": [
+                              {
+                                "type": "button",
+                                "actionType": "cancel",
+                                "label": "取消"
+                              },
+                              {
+                                "type": "button",
+                                "actionType": "submit",
+                                "label": "提交",
+                                "level": "primary"
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "id": "u:7838afe0dfc7"
+                },
+                {
+                  "type": "button",
+                  "label": "批量删除",
+                  "behavior": "BulkDelete",
+                  "level": "danger",
+                  "className": "m-r-xs",
+                  "confirmText": "确认要批量删除数据「${JOIN(ARRAYMAP(selectedItems, item => item.id), ',')}」",
+                  "disabledOn": "${selectedItems != null && selectedItems.length < 1}",
+                  "onEvent": {
+                    "click": {
+                      "actions": [
+                        {
+                          "actionType": "ajax"
+                        },
+                        {
+                          "actionType": "search",
+                          "groupType": "component",
+                          "componentId": "u:f9c23237d47f"
+                        }
+                      ]
+                    }
+                  },
+                  "id": "u:83dc24817b9e"
+                }
+              ],
+              "wrapperBody": false,
+              "style": {
+                "flexGrow": 1,
+                "flex": "1 1 auto",
+                "position": "static",
+                "display": "flex",
+                "flexBasis": "auto",
+                "flexDirection": "row",
+                "flexWrap": "nowrap",
+                "alignItems": "stretch",
+                "justifyContent": "flex-start"
+              },
+              "id": "u:882cd38e68f5"
+            },
+            {
+              "type": "container",
+              "align": "right",
+              "behavior": [
+                "FuzzyQuery"
+              ],
+              "body": [],
+              "wrapperBody": false,
+              "style": {
+                "flexGrow": 1,
+                "flex": "1 1 auto",
+                "position": "static",
+                "display": "flex",
+                "flexBasis": "auto",
+                "flexDirection": "row",
+                "flexWrap": "nowrap",
+                "alignItems": "stretch",
+                "justifyContent": "flex-end"
+              },
+              "id": "u:1860e128759e"
+            }
+          ],
+          "id": "u:1a7a378b70af"
+        }
+      ],
+      "footerToolbar": [
+        {
+          "type": "flex",
+          "direction": "row",
+          "justify": "flex-start",
+          "alignItems": "stretch",
+          "style": {
+            "position": "static"
+          },
+          "items": [
+            {
+              "type": "container",
+              "align": "left",
+              "body": [],
+              "wrapperBody": false,
+              "style": {
+                "flexGrow": 1,
+                "flex": "1 1 auto",
+                "position": "static",
+                "display": "flex",
+                "flexBasis": "auto",
+                "flexDirection": "row",
+                "flexWrap": "nowrap",
+                "alignItems": "stretch",
+                "justifyContent": "flex-start"
+              },
+              "id": "u:35522879a1b5"
+            },
+            {
+              "type": "container",
+              "align": "right",
+              "body": [
+                {
+                  "type": "pagination",
+                  "behavior": "Pagination",
+                  "layout": [
+                    "total",
+                    "perPage",
+                    "pager"
+                  ],
+                  "perPage": 10,
+                  "perPageAvailable": [
+                    10,
+                    20,
+                    50,
+                    100
+                  ],
+                  "align": "right",
+                  "id": "u:b25e165fd6be"
+                }
+              ],
+              "wrapperBody": false,
+              "style": {
+                "flexGrow": 1,
+                "flex": "1 1 auto",
+                "position": "static",
+                "display": "flex",
+                "flexBasis": "auto",
+                "flexDirection": "row",
+                "flexWrap": "nowrap",
+                "alignItems": "stretch",
+                "justifyContent": "flex-end"
+              },
+              "id": "u:d7ada23604c2"
+            }
+          ],
+          "id": "u:9b075eabe1a8"
+        }
+      ],
+      "columns": [
+        {
+          "type": "tpl",
+          "title": "engine",
+          "name": "engine",
+          "id": "u:7efaa7ddd4e4"
+        },
+        {
+          "type": "tpl",
+          "title": "browser",
+          "name": "browser",
+          "id": "u:7819676cc972"
+        },
+        {
+          "type": "tpl",
+          "title": "platform",
+          "name": "platform",
+          "id": "u:b1cc1ba2cade"
+        },
+        {
+          "type": "tpl",
+          "title": "version",
+          "name": "version",
+          "id": "u:7714c6d07c8f"
+        },
+        {
+          "type": "tpl",
+          "title": "grade",
+          "name": "grade",
+          "id": "u:5bc924e1daf9"
+        },
+        {
+          "type": "tpl",
+          "title": "badgeText",
+          "name": "badgeText",
+          "id": "u:cd52860259af"
+        },
+        {
+          "type": "tpl",
+          "title": "id",
+          "name": "id",
+          "id": "u:4fa11d27e40c"
+        },
+        {
+          "type": "operation",
+          "title": "操作",
+          "buttons": [
+            {
+              "type": "button",
+              "label": "查看",
+              "level": "link",
+              "behavior": "View",
+              "onEvent": {
+                "click": {
+                  "actions": [
+                    {
+                      "actionType": "dialog",
+                      "dialog": {
+                        "body": {
+                          "id": "u:46fdade415b1",
+                          "type": "form",
+                          "title": "查看数据",
+                          "mode": "horizontal",
+                          "dsType": "api",
+                          "feat": "View",
+                          "body": [
+                            {
+                              "name": "engine",
+                              "label": "engine",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "browser",
+                              "label": "browser",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "platform",
+                              "label": "platform",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "version",
+                              "label": "version",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "grade",
+                              "label": "grade",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "badgeText",
+                              "label": "badgeText",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "id",
+                              "label": "id",
+                              "type": "input-number"
+                            }
+                          ],
+                          "static": true,
+                          "actions": [
+                            {
+                              "type": "button",
+                              "actionType": "cancel",
+                              "label": "关闭"
+                            }
+                          ],
+                          "onEvent": {
+                            "submitSucc": {
+                              "actions": [
+                                {
+                                  "actionType": "search",
+                                  "groupType": "component",
+                                  "componentId": "u:f9c23237d47f"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "title": "查看数据",
+                        "size": "md",
+                        "actions": [
+                          {
+                            "type": "button",
+                            "actionType": "cancel",
+                            "label": "关闭"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "u:de9bad3a71aa"
+            },
+            {
+              "type": "button",
+              "label": "编辑",
+              "level": "link",
+              "behavior": "Edit",
+              "onEvent": {
+                "click": {
+                  "actions": [
+                    {
+                      "actionType": "dialog",
+                      "dialog": {
+                        "body": {
+                          "id": "u:eda6b9203a88",
+                          "type": "form",
+                          "title": "编辑数据",
+                          "mode": "horizontal",
+                          "dsType": "api",
+                          "feat": "Edit",
+                          "body": [
+                            {
+                              "name": "engine",
+                              "label": "engine",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "browser",
+                              "label": "browser",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "platform",
+                              "label": "platform",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "version",
+                              "label": "version",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "grade",
+                              "label": "grade",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "badgeText",
+                              "label": "badgeText",
+                              "type": "input-text"
+                            },
+                            {
+                              "name": "id",
+                              "label": "id",
+                              "type": "input-number"
+                            }
+                          ],
+                          "resetAfterSubmit": true,
+                          "actions": [
+                            {
+                              "type": "button",
+                              "actionType": "cancel",
+                              "label": "取消"
+                            },
+                            {
+                              "type": "button",
+                              "actionType": "submit",
+                              "label": "提交",
+                              "level": "primary"
+                            }
+                          ],
+                          "onEvent": {
+                            "submitSucc": {
+                              "actions": [
+                                {
+                                  "actionType": "search",
+                                  "groupType": "component",
+                                  "componentId": "u:f9c23237d47f"
+                                }
+                              ]
+                            }
+                          }
+                        },
+                        "title": "编辑数据",
+                        "size": "md",
+                        "actions": [
+                          {
+                            "type": "button",
+                            "actionType": "cancel",
+                            "label": "取消"
+                          },
+                          {
+                            "type": "button",
+                            "actionType": "submit",
+                            "label": "提交",
+                            "level": "primary"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              "id": "u:6e892683294f"
+            }
+          ],
+          "id": "u:ffaf36f82224"
+        }
+      ]
+    }
+  ],
+  "id": "u:3c255addd939",
+  "asideResizor": false,
+  "pullRefresh": {
+    "disabled": true
+  }
+}
+
+```
+
 column 里 select 选中后赋值功能测试
 
 ```schema: scope="body"
@@ -221,7 +844,8 @@ column 里 select 选中后赋值功能测试
                 "name": "engine",
                 "label": "Engine",
                 "id": "u:4aa2e9034698",
-                "inline": true
+                "inline": true,
+                "required": true
               },
               {
                 "name": "version",

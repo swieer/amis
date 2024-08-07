@@ -55,6 +55,7 @@ import {ActionSchema} from '../Action';
 import HeadCellSearchDropDown from './HeadCellSearchDropdown';
 import './TableCell';
 import './ColumnToggler';
+import AdvancedQuery from './AdvancedQuery';
 import {SchemaQuickEdit} from '../QuickEdit';
 
 import type {TestIdBuilder} from 'amis-core';
@@ -909,7 +910,10 @@ export default class Table2 extends React.Component<Table2Props, object> {
         let titleSchema: any = null;
         const titleProps = {
           popOverContainer: popOverContainer || this.getPopOverContainer,
-          value: column.title || column.label
+          // 表头增加required属性支持
+          value: column.required
+            ? `*${column.title || column.label}`
+            : column.title || column.label
         };
         if (isObject(column.title)) {
           titleSchema = cloneDeep(column.title);
@@ -1554,19 +1558,27 @@ export default class Table2 extends React.Component<Table2Props, object> {
     onAction && onAction(e, action, ctx);
   }
 
+  @autobind
+  handleAdvancedQuery(data: any) {
+    const {onSearch} = this.props;
+    console.log('zhengxi advan query -- ', data);
+    onSearch && onSearch({advancedQuery: '高级查询'});
+  }
+
   renderActions(region: string) {
     let {
       actions,
       render,
       store,
+      classPrefix: ns,
       classnames: cx,
       data,
       columnsTogglable,
-      dispatchEvent
+      dispatchEvent,
+      ...rest
     } = this.props;
     actions = Array.isArray(actions) ? actions.concat() : [];
     const config = isObject(columnsTogglable) ? columnsTogglable : {};
-
     // 现在默认从crud里传进来的columnsTogglable是boolean类型
     // table单独配置的是SchemaNode类型
     // 如果是在crud里 配置了columnsTogglable相关配置 那么还是在这里渲染
@@ -1610,6 +1622,27 @@ export default class Table2 extends React.Component<Table2Props, object> {
         )
       });
     }
+    // 增加高级查询
+    actions.push({
+      type: 'button',
+      children: (
+        <AdvancedQuery
+          {...rest}
+          columns={store.columns}
+          tooltip={{
+            content: '高级查询',
+            placement: 'bottom'
+          }}
+          classnames={cx}
+          classPrefix={ns}
+          key="columns-toggable"
+          size={config?.size || 'sm'}
+          icon={config?.icon}
+          label="高级查询"
+          onQuery={this.handleAdvancedQuery}
+        />
+      )
+    });
 
     return Array.isArray(actions) && actions.length ? (
       <div className={cx('Table-toolbar')}>

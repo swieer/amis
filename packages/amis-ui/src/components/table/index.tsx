@@ -139,6 +139,9 @@ export interface TableProps extends ThemeProps, LocaleProps, SpinnerExtraProps {
   className?: string;
   dataSource: Array<any>;
   classnames: ClassNamesFn;
+  headerClassName?: string;
+  bodyClassname?: string;
+  rowClassname?: string;
   columns: Array<ColumnProps>;
   scroll?: ScrollProps;
   rowSelection?: RowSelectionProps;
@@ -688,7 +691,8 @@ export class Table extends React.PureComponent<TableProps, TableState> {
       onSort,
       onSelectAll,
       onFilter,
-      testIdBuilder
+      testIdBuilder,
+      headerClassName
     } = this.props;
 
     const rowSelectionKeyField = this.getRowSelectionKeyField();
@@ -723,6 +727,7 @@ export class Table extends React.PureComponent<TableProps, TableState> {
         orderBy={this.state.sort?.orderBy}
         popOverContainer={this.getPopOverContainer}
         classnames={cx}
+        className={headerClassName}
         classPrefix={classPrefix}
         onSort={(payload: SortProps, column: ColumnProps) => {
           this.setState({
@@ -1305,7 +1310,8 @@ export class Table extends React.PureComponent<TableProps, TableState> {
       showHeader,
       itemActions,
       tableLayout,
-      classnames: cx
+      classnames: cx,
+      bodyClassname
     } = this.props;
 
     const hasScrollX = scroll && scroll.x;
@@ -1335,7 +1341,7 @@ export class Table extends React.PureComponent<TableProps, TableState> {
             ...tableStyle,
             tableLayout: tableLayout === 'fixed' ? 'fixed' : 'auto'
           }}
-          className={cx('Table-table')}
+          className={cx('Table-table', bodyClassname)}
         >
           {this.renderColGroup()}
           {showHeader ? this.renderHead() : null}
@@ -1352,7 +1358,8 @@ export class Table extends React.PureComponent<TableProps, TableState> {
       headSummary,
       sticky,
       showHeader,
-      classnames: cx
+      classnames: cx,
+      headerClassName
     } = this.props;
 
     const style = {overflow: 'hidden'};
@@ -1363,16 +1370,25 @@ export class Table extends React.PureComponent<TableProps, TableState> {
     const tableStyle = {};
     if (scroll && (scroll.y || scroll.x)) {
       Object.assign(tableStyle, {
-        width: scroll && scroll.x ? scroll.x + 'px' : '100%'
+        width:
+          scroll && scroll.x
+            ? typeof scroll.x === 'number'
+              ? scroll.x + 'px'
+              : scroll.x
+            : '100%'
       });
     }
 
     return (
       <div
         ref={this.headerDom}
-        className={cx('Table-header', {
-          [cx('Table-sticky-holder')]: !!sticky
-        })}
+        className={cx(
+          'Table-header',
+          {
+            [cx('Table-sticky-holder')]: !!sticky
+          },
+          headerClassName
+        )}
         style={style}
       >
         <table
@@ -1390,7 +1406,7 @@ export class Table extends React.PureComponent<TableProps, TableState> {
   }
 
   renderScrollTableBody() {
-    const {scroll, itemActions, classnames: cx} = this.props;
+    const {scroll, itemActions, classnames: cx, bodyClassname} = this.props;
 
     const style = {};
     const tableStyle = {};
@@ -1401,7 +1417,12 @@ export class Table extends React.PureComponent<TableProps, TableState> {
       });
 
       Object.assign(tableStyle, {
-        width: scroll && scroll.x ? scroll.x + 'px' : '100%'
+        width:
+          scroll && scroll.x
+            ? typeof scroll.x === 'number'
+              ? scroll.x + 'px'
+              : scroll.x
+            : '100%'
       });
     }
 
@@ -1423,7 +1444,7 @@ export class Table extends React.PureComponent<TableProps, TableState> {
           </ItemActionsWrapper>
         ) : null}
         <table
-          className={cx('Table-table')}
+          className={cx('Table-table', bodyClassname)}
           style={{...tableStyle, tableLayout: 'fixed'}}
         >
           {this.renderColGroup()}

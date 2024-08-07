@@ -1224,7 +1224,9 @@ export class FormItemWrap extends React.Component<FormItemProps> {
       const horizontal = props.horizontal || props.formHorizontal || {};
       const left = getWidthRate(horizontal.left);
       const right = getWidthRate(horizontal.right);
-      const labelAlign = props.labelAlign || props.formLabelAlign;
+      const labelAlign =
+        (props.labelAlign !== 'inherit' && props.labelAlign) ||
+        props.formLabelAlign;
       const labelWidth = props.labelWidth || props.formLabelWidth;
 
       return (
@@ -1966,7 +1968,8 @@ export class FormItemWrap extends React.Component<FormItemProps> {
       themeCss,
       id,
       wrapperCustomStyle,
-      env
+      env,
+      classnames: cx
     } = this.props;
     const mode = this.props.mode || formMode;
 
@@ -2004,7 +2007,13 @@ export class FormItemWrap extends React.Component<FormItemProps> {
             themeCss: themeCss || css,
             classNames: [
               {
-                key: 'labelClassName'
+                key: 'labelClassName',
+                weights: {
+                  default: {
+                    suf: `.${cx('Form-label')}`,
+                    parent: `.${cx('Form-item')}`
+                  }
+                }
               },
               {
                 key: 'descriptionClassName'
@@ -2161,6 +2170,7 @@ export function asFormItem(config: Omit<FormItemConfig, 'component'>) {
           constructor(props: FormControlProps) {
             super(props);
             this.refFn = this.refFn.bind(this);
+            this.getData = this.getData.bind(this);
 
             const {validations, formItem: model} = props;
 
@@ -2203,6 +2213,10 @@ export function asFormItem(config: Omit<FormItemConfig, 'component'>) {
             this.ref = ref;
           }
 
+          getData() {
+            return this.props.data;
+          }
+
           renderControl() {
             const {
               // 这里解构，不可轻易删除，避免被rest传到子组件
@@ -2217,10 +2231,10 @@ export function asFormItem(config: Omit<FormItemConfig, 'component'>) {
               ...rest
             } = this.props;
 
-            const controlSize =
-              size && ['xs', 'sm', 'md', 'lg', 'full'].includes(size)
-                ? size
-                : defaultSize;
+            const isRuleSize =
+              size && ['xs', 'sm', 'md', 'lg', 'full'].includes(size);
+
+            const controlSize = isRuleSize ? size : defaultSize;
 
             //@ts-ignore
             const isOpened = this.state.isOpened;
@@ -2228,6 +2242,9 @@ export function asFormItem(config: Omit<FormItemConfig, 'component'>) {
               <>
                 <Control
                   {...rest}
+                  // 因为 formItem 内部可能不会更新到最新的 data，所以暴露个方法可以获取到最新的
+                  // 获取不到最新的因为做了限制，只有表单项目 name 关联的数值变化才更新
+                  getData={this.getData}
                   mobileUI={mobileUI}
                   onOpenDialog={this.handleOpenDialog}
                   size={config.sizeMutable !== false ? undefined : size}
@@ -2238,6 +2255,9 @@ export function asFormItem(config: Omit<FormItemConfig, 'component'>) {
                   ref={supportRef ? this.refFn : undefined}
                   forwardedRef={supportRef ? undefined : this.refFn}
                   formItem={model}
+                  style={{
+                    width: !isRuleSize && size ? size : undefined
+                  }}
                   className={cx(
                     `Form-control`,
                     {

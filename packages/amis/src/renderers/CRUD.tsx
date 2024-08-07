@@ -1435,9 +1435,13 @@ export default class CRUD extends React.Component<CRUDProps, any> {
     this.search(undefined, undefined, undefined);
 
     if (autoJumpToTopOnPagerChange && this.control) {
-      (findDOMNode(this.control) as HTMLElement).scrollIntoView();
-      const scrolledY = window.scrollY;
-      scrolledY && window.scroll(0, scrolledY);
+      if (this.control.scrollToTop) {
+        this.control.scrollToTop();
+      } else {
+        (findDOMNode(this.control) as HTMLElement).scrollIntoView();
+        const scrolledY = window.scrollY;
+        scrolledY && window.scroll(0, scrolledY);
+      }
     }
   }
 
@@ -2761,7 +2765,8 @@ export default class CRUD extends React.Component<CRUDProps, any> {
             footerToolbarRender: this.renderFooterToolbar,
             data: store.mergedData,
             loading: store.loading,
-            host: this
+            host: this,
+            testIdBuilder: testIdBuilder?.getChild('body')
           }
         )}
         {render(

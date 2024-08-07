@@ -1,6 +1,11 @@
 .#{$ns}Table {
   position: relative;
 
+  // 黑科技，让 scrollIntoView 能够跑正确的位置
+  // margin-top: calc(var(--affix-offset-top) * -1);
+  // padding-top: var(--affix-offset-top);
+  scroll-margin-top: var(--affix-offset-top);
+
   border-radius: var(--Table-borderRadius);
   margin-bottom: var(--gap-md);
 
@@ -219,6 +224,7 @@
     & th,
     & td {
       text-align: left;
+      border-color: transparent;
       border-bottom: var(--Table-borderWidth) solid var(--Table-borderColor);
 
       &.is-sticky {
@@ -257,6 +263,10 @@
       & > .#{$ns}Form,
       & > .#{$ns}Form-item {
         min-width: var(--Form-control-widthBase);
+      }
+
+      .#{$ns}Form-static {
+        min-height: auto;
       }
     }
 

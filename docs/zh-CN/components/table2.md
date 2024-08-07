@@ -4654,6 +4654,7 @@ table2 column 里 select 选中后赋值功能测试
   "body": {
     "type": "service",
     "api": "/api/sample?perPage=5",
+    "id": "service-container",
     "body": [
       {
         "type": "table2",
@@ -4661,6 +4662,25 @@ table2 column 里 select 选中后赋值功能测试
         "quickSaveApi": {
           "url": "/api/mock2/sample/bulkUpdate",
           "method": "put"
+        },
+        "draggable": true,
+        "onEvent": {
+          "quickSaveSubmitted": {
+            "actions": [
+              {
+                "actionType": "reload",
+                "componentId": "service-container"
+              }
+            ]
+          },
+          "orderChange": {
+            "actions": [
+              {
+                "actionType": "reload",
+                "componentId": "service-container"
+              }
+            ]
+          }
         },
         "columns": [
           {

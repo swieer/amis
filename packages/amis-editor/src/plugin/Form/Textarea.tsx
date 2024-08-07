@@ -6,6 +6,7 @@ import type {BaseEventContext} from 'amis-editor-core';
 import {ValidatorTag} from '../../validator';
 import {getEventControlConfig} from '../../renderer/event-control/helper';
 import {RendererPluginAction, RendererPluginEvent} from 'amis-editor-core';
+import {inputStateTpl} from '../../renderer/style-control/helper';
 
 export class TextareaControlPlugin extends BasePlugin {
   static id = 'TextareaControlPlugin';
@@ -183,23 +184,36 @@ export class TextareaControlPlugin extends BasePlugin {
         title: '外观',
         body: [
           getSchemaTpl('collapseGroup', [
-            getSchemaTpl('style:formItem', {
-              renderer: context.info.renderer,
+            getSchemaTpl('theme:formItem', {
               schema: [
                 {
                   type: 'input-number',
                   name: 'minRows',
                   value: 3,
-                  label: '最小展示行数'
+                  label: '最小展示行数',
+                  min: 1
                 },
                 {
                   type: 'input-number',
                   name: 'maxRows',
                   value: 20,
-                  label: '最大展示行数'
+                  label: '最大展示行数',
+                  min: 1
                 }
               ]
             }),
+            getSchemaTpl('theme:form-label'),
+            getSchemaTpl('theme:form-description'),
+            {
+              title: '多行文本样式',
+              body: [
+                ...inputStateTpl(
+                  'themeCss.inputControlClassName',
+                  '--input-textarea'
+                )
+              ]
+            },
+            getSchemaTpl('theme:cssCode'),
             getSchemaTpl('style:classNames')
           ])
         ]

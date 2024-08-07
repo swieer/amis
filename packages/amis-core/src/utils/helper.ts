@@ -118,7 +118,11 @@ export function syncDataFromSuper(
   let keys: Array<string> = [];
 
   // 如果是 form store，则从父级同步 formItem 种东西。
-  if (store && store.storeType === 'FormStore') {
+  if (
+    store &&
+    store.storeType === 'FormStore' &&
+    (store as any).canAccessSuperData !== false
+  ) {
     keys = uniq(
       (store as IFormStore).items
         .map(item => `${item.name}`.replace(/\..*$/, ''))
@@ -206,7 +210,9 @@ export function anyChanged(
     typeof attrs === 'string'
       ? attrs.split(',').map(item => item.trim())
       : attrs
-  ).some(key => (strictMode ? from[key] !== to[key] : from[key] != to[key]));
+  ).some(key =>
+    strictMode ? !Object.is(from[key], to[key]) : from[key] != to[key]
+  );
 }
 
 type Mutable<T> = {
@@ -227,7 +233,9 @@ export function changedEffect<T extends Record<string, any>>(
       : attrs;
 
   keys.forEach(key => {
-    if (strictMode ? origin[key] !== data[key] : origin[key] != data[key]) {
+    if (
+      strictMode ? !Object.is(origin[key], data[key]) : origin[key] != data[key]
+    ) {
       (changes as any)[key] = data[key];
     }
   });
@@ -633,7 +641,7 @@ export function difference<
         }
 
         // isEquals 里面没有处理好递归引用对象的情况
-        if (!isObjectShallowModified(a, b, false, undefined, undefined, 10)) {
+        if (!isObjectShallowModified(a, b, true, undefined, undefined, 10)) {
           return;
         }
 

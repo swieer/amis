@@ -21,6 +21,7 @@ import type {RendererConfig} from 'amis-core';
 import type {SchemaCollection} from 'amis';
 import {SchemaFrom} from './base/SchemaForm';
 import memoize from 'lodash/memoize';
+import {FormConfigWrapper} from './FormConfigWrapper';
 
 // 创建 Node Store 并构建成树
 export function makeWrapper(
@@ -56,6 +57,7 @@ export function makeWrapper(
         type: info.type,
         label: info.name,
         isCommonConfig: !!this.props.$$commonSchema,
+        isFormConfig: !!this.props.$$formSchema,
         path: this.props.$path,
         schemaPath: info.schemaPath,
         dialogTitle: info.dialogTitle,
@@ -98,7 +100,7 @@ export function makeWrapper(
           const nodeSchema = manager.store.getNodeById(info.id)?.schema;
           const tag = appTranslate(nodeSchema?.title ?? nodeSchema?.name);
           manager.dataSchema.current.tag = `${info.name}${
-            tag ? ` : ${tag}` : ''
+            tag && typeof tag === 'string' ? ` : ${tag}` : ''
           }`;
           manager.dataSchema.current.group = '组件上下文';
         }
@@ -113,6 +115,10 @@ export function makeWrapper(
         props.$$commonSchema !== prevProps.$$commonSchema
       ) {
         this.editorNode.updateIsCommonConfig(!!this.props.$$commonSchema);
+      }
+
+      if (this.editorNode && props.$$formSchema !== prevProps.$$formSchema) {
+        this.editorNode.updateIsFormConfig(!!this.props.$$formSchema);
       }
     }
 
@@ -181,6 +187,8 @@ export function makeWrapper(
        */
       const Wrapper = /*info.wrapper || (*/ this.props.$$commonSchema
         ? CommonConfigWrapper
+        : this.props.$$formSchema
+        ? FormConfigWrapper
         : info.regions
         ? ContainerWrapper
         : NodeWrapper; /*)*/
@@ -351,7 +359,7 @@ export function hackIn(
 
             if (
               info &&
-              !this.props.$$commonSchema &&
+              (!this.props.$$commonSchema || !this.props.$$formSchema) &&
               Array.isArray(info.regions) &&
               regions.every(region =>
                 find(info.regions!, c => c.key === region.key)

@@ -57,7 +57,7 @@ import {ActionSchema} from '../Action';
 import HeadCellSearchDropDown from './HeadCellSearchDropdown';
 import './TableCell';
 import './ColumnToggler';
-import AdvancedQuery from './AdvancedQuery';
+// import AdvancedQuery from './AdvancedQuery';
 import {SchemaQuickEdit} from '../QuickEdit';
 
 import type {TestIdBuilder} from 'amis-core';
@@ -699,7 +699,6 @@ export default class Table2 extends React.Component<Table2Props, object> {
   componentDidUpdate(prevProps: Table2Props) {
     const props = this.props;
     const store = props.store;
-
     changedEffect(
       ['orderBy', 'columnsTogglable', 'canAccessSuperData'],
       prevProps,
@@ -1653,26 +1652,26 @@ export default class Table2 extends React.Component<Table2Props, object> {
       });
     }
     // 增加高级查询
-    actions.push({
-      type: 'button',
-      children: (
-        <AdvancedQuery
-          {...rest}
-          columns={store.columns}
-          tooltip={{
-            content: '高级查询',
-            placement: 'bottom'
-          }}
-          classnames={cx}
-          classPrefix={ns}
-          key="columns-toggable"
-          size={config?.size || 'sm'}
-          icon={config?.icon}
-          label="高级查询"
-          onQuery={this.handleAdvancedQuery}
-        />
-      )
-    });
+    // actions.push({
+    //   type: 'button',
+    //   children: (
+    //     <AdvancedQuery
+    //       {...rest}
+    //       columns={store.columns}
+    //       tooltip={{
+    //         content: '高级查询',
+    //         placement: 'bottom'
+    //       }}
+    //       classnames={cx}
+    //       classPrefix={ns}
+    //       key="columns-toggable"
+    //       size={config?.size || 'sm'}
+    //       icon={config?.icon}
+    //       label="高级查询"
+    //       onQuery={this.handleAdvancedQuery}
+    //     />
+    //   )
+    // });
 
     return Array.isArray(actions) && actions.length ? (
       <div className={cx('Table-toolbar')}>

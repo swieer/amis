@@ -23,6 +23,7 @@ order: 67
       "id": "u:f9c23237d47f",
       "mode": "table2",
       "dsType": "api",
+      "sticky": true,
       "syncLocation": true,
       "selectable": true,
       "multiple": true,

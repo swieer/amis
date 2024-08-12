@@ -417,15 +417,27 @@ export default class SelectControl extends React.Component<SelectProps, any> {
   @autobind
   renderMenu(option: Option, state: any) {
     const {menuTpl, render, data, optionClassName, testIdBuilder} = this.props;
-
-    return render(`menu/${state.index}`, menuTpl, {
+    // if (state.index > 8) {
+    //   console.log(
+    //     'zhengxi render menu -- ',
+    //     menuTpl,
+    //     option,
+    //     state,
+    //     data,
+    //     createObject(data, state),
+    //     createObject(createObject(data, state), option)
+    //   );
+    // }
+    const tempData = createObject(createObject(data, state), option);
+    const testid = {
       showNativeTitle: true,
       className: cx('Select-option-content', optionClassName),
-      data: createObject(createObject(data, state), option),
+      data: {...tempData, ...option},
       testIdBuilder: testIdBuilder?.getChild(
         'option-' + option.value || state.index
       )
-    });
+    };
+    return render(`menu/${state.index}`, menuTpl, testid);
   }
 
   reload() {

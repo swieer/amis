@@ -79,9 +79,10 @@ export class Button extends React.Component<ButtonProps> {
       overrideClassName,
       loadingConfig,
       testIdBuilder,
+      id,
       ...rest
     } = this.props;
-
+    console.log('zhengxi button props', this.props);
     if (href) {
       Comp = 'a';
     } else if ((Comp === 'button' && disabled) || loading) {
@@ -94,6 +95,7 @@ export class Button extends React.Component<ButtonProps> {
         {...pickEventsProps(rest)}
         onClick={rest.onClick && disabled ? () => {} : rest.onClick}
         href={href}
+        id={id}
         {...testIdBuilder?.getTestId()}
         className={cx(
           overrideClassName

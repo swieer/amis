@@ -350,9 +350,49 @@ export default class CRUD2 extends React.Component<CRUD2Props, any> {
     }
   }
 
+  handleGetDomId() {
+    let buttonId = '';
+    const tempSchema = this.props.$schema;
+    if (tempSchema.headerToolbar && tempSchema.headerToolbar.length > 0) {
+      for (const header of tempSchema.headerToolbar) {
+        if (header.type === 'flex' && header.items.length > 0) {
+          for (const item of header.items) {
+            if (
+              item.type === 'container' &&
+              item.body &&
+              item.body.length > 0
+            ) {
+              for (const body of item.body) {
+                if (
+                  body.type === 'button' &&
+                  (body.label.includes('新增') ||
+                    body.label.includes('创建') ||
+                    body.label.includes('添加'))
+                ) {
+                  buttonId = body.id;
+                  break;
+                }
+              }
+            }
+            if (buttonId) {
+              break;
+            }
+          }
+        }
+        if (buttonId) {
+          break;
+        }
+      }
+    }
+    return buttonId;
+  }
+
   componentDidMount() {
     const {store, pickerMode, loadType, loadDataOnce, perPage} = this.props;
-
+    window.getCreateButtonId = () => {
+      console.log('zhengxi show create', this.props.$schema);
+      return this.handleGetDomId();
+    };
     // 初始化分页
     let pagination = loadType && !!loadDataOnce;
     if (pagination) {
@@ -443,6 +483,7 @@ export default class CRUD2 extends React.Component<CRUD2Props, any> {
   }
 
   componentWillUnmount() {
+    window.getCreateButtonId = null;
     this.mounted = false;
     clearTimeout(this.timer);
   }

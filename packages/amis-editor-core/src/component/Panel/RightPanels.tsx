@@ -70,18 +70,23 @@ export class RightPanels extends React.Component<
     const node = store.getNodeById(id);
     const panelKey = store.getPanelKey();
     const renderPanel = (panel: PanelItem) => {
+      const renderData = {
+        id,
+        info: node?.info,
+        path: node?.path,
+        node: node,
+        value: store.value,
+        onChange: manager.panelChangeValue,
+        store: store,
+        manager: manager,
+        popOverContainer: this.getPopOverContainer
+      };
+      if (panel.title === '导出按钮配置') {
+        console.log('zhengxi render panel', panel, store, node);
+        console.log('zhengxi pandel render -- ', renderData);
+      }
       return panel.render ? (
-        panel.render({
-          id,
-          info: node?.info,
-          path: node?.path,
-          node: node,
-          value: store.value,
-          onChange: manager.panelChangeValue,
-          store: store,
-          manager: manager,
-          popOverContainer: this.getPopOverContainer
-        })
+        panel.render(renderData)
       ) : panel.component ? (
         <panel.component
           node={node}

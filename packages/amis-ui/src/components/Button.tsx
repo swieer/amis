@@ -82,7 +82,6 @@ export class Button extends React.Component<ButtonProps> {
       id,
       ...rest
     } = this.props;
-    console.log('zhengxi button props', this.props);
     if (href) {
       Comp = 'a';
     } else if ((Comp === 'button' && disabled) || loading) {

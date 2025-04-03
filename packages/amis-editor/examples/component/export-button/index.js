@@ -64,7 +64,7 @@ class ExportButtonPlugin extends BasePlugin {
     }
   ];
   actions = [];
-  panelTitle = '配置';
+  panelTitle = '导出按钮配置';
   panelBodyCreator = context => {
     return [
       getSchemaTpl('tabs', [

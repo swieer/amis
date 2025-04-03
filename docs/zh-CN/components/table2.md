@@ -20,7 +20,7 @@ order: 67
   "body": [
     {
       "type": "crud2",
-      "id": "u:f9c23237d47f",
+      "id": "u:testCrud2",
       "mode": "table2",
       "dsType": "api",
       "sticky": true,
@@ -219,7 +219,7 @@ order: 67
                                     {
                                       "actionType": "search",
                                       "groupType": "component",
-                                      "componentId": "u:f9c23237d47f"
+                                      "componentId": "u:testCrud2"
                                     }
                                   ]
                                 }
@@ -264,7 +264,7 @@ order: 67
                         {
                           "actionType": "search",
                           "groupType": "component",
-                          "componentId": "u:f9c23237d47f"
+                          "componentId": "u:testCrud2"
                         }
                       ]
                     }
@@ -496,7 +496,7 @@ order: 67
                                 {
                                   "actionType": "search",
                                   "groupType": "component",
-                                  "componentId": "u:f9c23237d47f"
+                                  "componentId": "u:testCrud2"
                                 }
                               ]
                             }
@@ -593,7 +593,7 @@ order: 67
                                 {
                                   "actionType": "search",
                                   "groupType": "component",
-                                  "componentId": "u:f9c23237d47f"
+                                  "componentId": "u:testCrud2"
                                 }
                               ]
                             }
@@ -656,7 +656,7 @@ column 里 select 选中后赋值功能测试
         },
         "body": [
           {
-            "type": "crud2",
+            "type": "crud",
             "mode": "table2",
             "id": "zhengxitable",
             "title": "引擎列表",

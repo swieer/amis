@@ -417,22 +417,12 @@ export default class SelectControl extends React.Component<SelectProps, any> {
   @autobind
   renderMenu(option: Option, state: any) {
     const {menuTpl, render, data, optionClassName, testIdBuilder} = this.props;
-    // if (state.index > 8) {
-    //   console.log(
-    //     'zhengxi render menu -- ',
-    //     menuTpl,
-    //     option,
-    //     state,
-    //     data,
-    //     createObject(data, state),
-    //     createObject(createObject(data, state), option)
-    //   );
-    // }
-    const tempData = createObject(createObject(data, state), option);
+    const temp0data = createObject(data, state);
+    const tempData = createObject(temp0data, option);
     const testid = {
       showNativeTitle: true,
       className: cx('Select-option-content', optionClassName),
-      data: {...tempData, ...option},
+      data: tempData,
       testIdBuilder: testIdBuilder?.getChild(
         'option-' + option.value || state.index
       )
@@ -564,7 +554,6 @@ export default class SelectControl extends React.Component<SelectProps, any> {
             searchable={searchable || !!autoComplete}
             onChange={this.changeValue}
             onBlur={(e: any) => this.dispatchEvent('blur', e)}
-            onFocus={(e: any) => this.dispatchEvent('focus', e)}
             loading={loading}
             noResultsText={noResultsText}
             renderMenu={menuTpl ? this.renderMenu : undefined}

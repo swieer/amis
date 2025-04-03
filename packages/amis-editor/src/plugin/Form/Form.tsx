@@ -1,3 +1,4 @@
+import React from 'react';
 import cx from 'classnames';
 import DeepDiff from 'deep-diff';
 import flatten from 'lodash/flatten';
@@ -20,11 +21,15 @@ import {
   ScaffoldForm,
   RegionConfig,
   registerEditorPlugin,
-  JSONPipeOut,
-  InsertEventContext,
-  MoveEventContext,
-  DeleteEventContext
+  JSONPipeOut
 } from 'amis-editor-core';
+import type {FormSchema} from 'amis';
+import type {
+  IFormStore,
+  IFormItemStore,
+  Schema,
+  RendererConfig
+} from 'amis-core';
 import {
   DSFeatureType,
   DSBuilderManager,
@@ -33,17 +38,14 @@ import {
   ApiDSBuilderKey
 } from '../../builder';
 import {FormOperatorMap} from '../../builder/constants';
-import {getEventControlConfig} from '../../renderer/event-control/helper';
+import {
+  getEventControlConfig,
+  getActionCommonProps
+} from '../../renderer/event-control/helper';
 import {FieldSetting} from '../../renderer/FieldSetting';
-import {_isModelComp} from '../../util';
+import {_isModelComp, generateId} from '../../util';
+import {InlineEditableElement} from 'amis-editor-core';
 
-import type {FormSchema} from 'amis/lib/Schema';
-import type {
-  IFormStore,
-  IFormItemStore,
-  Schema,
-  RendererConfig
-} from 'amis-core';
 import type {FormScaffoldConfig} from '../../builder';
 
 export type FormPluginFeat = Extract<
@@ -98,6 +100,7 @@ export class FormPlugin extends BasePlugin {
       {
         label: '文本框',
         type: 'input-text',
+        id: generateId(),
         name: 'text'
       }
     ]
@@ -136,6 +139,14 @@ export class FormPlugin extends BasePlugin {
       label: '操作区',
       key: 'actions',
       preferTag: '按钮'
+    }
+  ];
+
+  // 定义可以内联编辑的元素
+  inlineEditableElements: Array<InlineEditableElement> = [
+    {
+      match: ':scope.cxd-Panel .cxd-Panel-title',
+      key: 'title'
     }
   ];
 
@@ -344,32 +355,53 @@ export class FormPlugin extends BasePlugin {
     {
       actionLabel: '提交表单',
       actionType: 'submit',
-      description: '触发表单提交'
+      description: '触发表单提交',
+      ...getActionCommonProps('submit')
     },
     {
       actionLabel: '重置表单',
       actionType: 'reset',
-      description: '触发表单重置'
+      description: '触发表单重置',
+      ...getActionCommonProps('reset')
     },
     {
       actionLabel: '清空表单',
       actionType: 'clear',
-      description: '触发表单清空'
+      description: '触发表单清空',
+      ...getActionCommonProps('clear')
     },
     {
       actionLabel: '校验表单',
       actionType: 'validate',
-      description: '触发表单校验'
+      description: '触发表单校验',
+      descDetail: (info: any, context: any, props: any) => {
+        return (
+          <div className="action-desc">
+            校验
+            <span className="variable-left variable-right">
+              {info?.rendererLabel}
+            </span>
+            的数据
+          </div>
+        );
+      }
     },
     {
       actionLabel: '重新加载',
       actionType: 'reload',
-      description: '触发组件数据刷新并重新渲染'
+      description: '触发组件数据刷新并重新渲染',
+      ...getActionCommonProps('reload')
     },
     {
       actionLabel: '变量赋值',
       actionType: 'setValue',
-      description: '触发组件数据更新'
+      description: '触发组件数据更新',
+      ...getActionCommonProps('setValue')
+    },
+    {
+      actionLabel: '清除校验状态',
+      actionType: 'clearError',
+      description: '清除表单校验产生的错误状态'
     }
   ];
 
@@ -633,7 +665,9 @@ export class FormPlugin extends BasePlugin {
       /\/crud2\/filter\/form$/.test(context.path) ||
       /body\/0\/filter$/.test(context.schemaPath);
     /** 表单是否位于Dialog内 */
-    const isInDialog: boolean = context.path?.includes?.('dialog/');
+    const isInDialog: boolean =
+      context.path?.includes?.('dialog/') ||
+      context.path?.includes?.('drawer/');
     /** 是否使用Panel包裹 */
     const isWrapped = 'this.wrapWithPanel !== false';
     const justifyLayout = (left: number = 2) => ({

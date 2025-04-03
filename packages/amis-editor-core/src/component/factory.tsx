@@ -19,7 +19,7 @@ import type {Schema} from 'amis';
 import type {DataScope} from 'amis-core';
 import type {RendererConfig} from 'amis-core';
 import type {SchemaCollection} from 'amis';
-import {SchemaFrom} from './base/SchemaForm';
+import {SchemaForm} from './base/SchemaForm';
 import memoize from 'lodash/memoize';
 import {FormConfigWrapper} from './FormConfigWrapper';
 
@@ -33,7 +33,7 @@ export function makeWrapper(
     $$id: string;
   };
   const store = manager.store;
-  const renderer = rendererConfig.component;
+  const renderer = rendererConfig.component!;
 
   @observer
   class Wrapper extends React.Component<Props> {
@@ -262,7 +262,15 @@ export function makeSchemaFormRender(
     body ? flatten(Array.isArray(body) ? body : [body]) : undefined
   );
 
-  return ({value, onChange, popOverContainer, id, store, node}: PanelProps) => {
+  return ({
+    value,
+    onChange,
+    popOverContainer,
+    id,
+    store,
+    node,
+    readonly
+  }: PanelProps) => {
     const ctx = {...manager.store.ctx};
 
     if (schema?.panelById && schema?.panelById !== node?.id) {
@@ -288,7 +296,7 @@ export function makeSchemaFormRender(
     const controls = filterBody(schema.controls);
 
     return (
-      <SchemaFrom
+      <SchemaForm
         key={curFormKey}
         propKey={curFormKey}
         api={schema.api}
@@ -306,6 +314,7 @@ export function makeSchemaFormRender(
         node={node}
         manager={manager}
         justify={schema.justify}
+        readonly={readonly}
       />
     );
   };

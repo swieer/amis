@@ -27,7 +27,7 @@ import {getVariables, getQuickVariables, utils} from 'amis-editor-core';
 
 import type {BaseEventContext} from 'amis-editor-core';
 import type {VariableItem, FuncGroup} from 'amis-ui';
-import {SchemaType} from 'packages/amis/src/Schema';
+import {SchemaType} from 'amis/lib/Schema';
 
 export enum FormulaDateType {
   NotDate, // 不是时间类
@@ -250,7 +250,7 @@ export default class FormulaControl extends React.Component<
       this.props
     );
     const rawType =
-      utils.RAW_TYPE_MAP[rendererSchema.type as SchemaType] || 'string';
+      utils.RAW_TYPE_MAP[rendererSchema?.type as SchemaType] || 'string';
     const filterVars = variables
       .map(item => {
         if (item.children && item.type !== 'quickVars') {

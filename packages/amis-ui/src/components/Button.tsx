@@ -33,6 +33,7 @@ export interface ButtonProps
   classPrefix: string;
   classnames: ClassNamesFn;
   componentClass: React.ElementType;
+  tabIndex?: string;
   overrideClassName?: boolean;
   loading?: boolean;
   loadingClassName?: string;
@@ -80,6 +81,7 @@ export class Button extends React.Component<ButtonProps> {
       loadingConfig,
       testIdBuilder,
       id,
+      tabIndex,
       ...rest
     } = this.props;
     if (href) {
@@ -113,6 +115,7 @@ export class Button extends React.Component<ButtonProps> {
         style={style}
         title={title}
         disabled={disabled}
+        tabIndex={tabIndex}
       >
         {loading && !disabled && (
           <Spinner

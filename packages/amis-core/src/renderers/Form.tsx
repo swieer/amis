@@ -11,7 +11,8 @@ import {
   ClassName,
   BaseApiObject,
   SchemaExpression,
-  SchemaClassName
+  SchemaClassName,
+  DataChangeReason
 } from '../types';
 import {filter, evalExpression} from '../utils/tpl';
 import getExprProperties from '../utils/filter-schema';
@@ -44,7 +45,11 @@ import {
 
 import {IComboStore} from '../store/combo';
 import {dataMapping} from '../utils/tpl-builtin';
-import {isApiOutdated, isEffectiveApi} from '../utils/api';
+import {
+  isApiOutdated,
+  isEffectiveApi,
+  shouldBlockedBySendOnApi
+} from '../utils/api';
 import LazyComponent from '../components/LazyComponent';
 import {isAlive} from 'mobx-state-tree';
 
@@ -377,7 +382,7 @@ export interface FormProps
   onSubmit?: (values: object, action: any) => any;
   onChange?: (values: object, diff: object, props: any) => any;
   onFailed?: (reason: string, errors: any) => any;
-  onFinished: (values: object, action: any) => any;
+  onFinished: (values: object, action: ActionObject, store: IFormStore) => any;
   onValidate: (values: object, form: any) => any;
   onValidChange?: (valid: boolean, props: any) => void; // 表单数据合法性变更
   messages: {
@@ -506,8 +511,10 @@ export default class Form extends React.Component<FormProps, object> {
     this.blockRouting = this.blockRouting.bind(this);
     this.beforePageUnload = this.beforePageUnload.bind(this);
     this.formItemDispatchEvent = this.formItemDispatchEvent.bind(this);
+    this.flush = this.flush.bind(this);
 
-    const {store, canAccessSuperData, persistData, simpleMode} = props;
+    const {store, canAccessSuperData, persistData, simpleMode, formLazyChange} =
+      props;
 
     store.setCanAccessSuperData(canAccessSuperData !== false);
     store.setPersistData(persistData);
@@ -538,7 +545,10 @@ export default class Form extends React.Component<FormProps, object> {
         () => store.initedAt,
         () => {
           store.inited &&
-            this.lazyEmitChange(!!this.props.submitOnChange, true);
+            (formLazyChange === false ? this.emitChange : this.lazyEmitChange)(
+              !!this.props.submitOnChange,
+              true
+            );
         }
       )
     );
@@ -629,7 +639,9 @@ export default class Form extends React.Component<FormProps, object> {
           successMessage: fetchSuccess,
           errorMessage: fetchFailed,
           onSuccess: (json: Payload, data: any) => {
-            store.setValues(data);
+            store.setValues(data, undefined, undefined, undefined, {
+              type: 'api'
+            });
 
             if (
               !isEffectiveApi(initAsyncApi, store.data) ||
@@ -886,6 +898,7 @@ export default class Form extends React.Component<FormProps, object> {
 
     // 派发初始化接口请求完成事件
     this.dispatchInited(result);
+    return store.data;
   }
 
   receive(values: object, name?: string, replace?: boolean) {
@@ -896,7 +909,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 
   silentReload(target?: string, query?: any) {
-    this.reload(target, query, undefined, true);
+    return this.reload(target, query, undefined, true);
   }
 
   initInterval(value: any) {
@@ -964,7 +977,9 @@ export default class Form extends React.Component<FormProps, object> {
   setValues(value: any, replace?: boolean) {
     const {store} = this.props;
     this.flush();
-    store.setValues(value, undefined, replace);
+    store.setValues(value, undefined, replace, undefined, {
+      type: 'action'
+    });
   }
 
   async submit(
@@ -998,7 +1013,10 @@ export default class Form extends React.Component<FormProps, object> {
 
       this.flushing = true;
       const hooks = this.hooks['flush'] || [];
-      await Promise.all(hooks.map(fn => fn()));
+      // 得有顺序，有些可能依赖上一个的结果
+      for (let hook of hooks) {
+        await hook();
+      }
       if (!this.emitting) {
         await this.lazyEmitChange.flush();
       }
@@ -1049,13 +1067,23 @@ export default class Form extends React.Component<FormProps, object> {
     value: any,
     name: string,
     submit: boolean,
-    changePristine = false
+    changePristine = false,
+    changeReason?: DataChangeReason
   ) {
     const {store, formLazyChange, persistDataKeys} = this.props;
     if (typeof name !== 'string') {
       return;
     }
-    store.changeValue(name, value, changePristine);
+    store.changeValue(
+      name,
+      value,
+      changePristine,
+      undefined,
+      undefined,
+      changeReason || {
+        type: 'input'
+      }
+    );
     if (!changePristine || typeof value !== 'undefined') {
       (formLazyChange === false ? this.emitChange : this.lazyEmitChange)(
         submit
@@ -1104,7 +1132,7 @@ export default class Form extends React.Component<FormProps, object> {
         onChange && onChange.apply(null, changeProps);
       }
 
-      store.clearRestError();
+      isAlive(store) && store.clearRestError();
 
       // 只有主动修改表单项触发的 change 才会触发 submit
       if (!emitedFromWatch && (submit || (submitOnChange && store.inited))) {
@@ -1124,9 +1152,21 @@ export default class Form extends React.Component<FormProps, object> {
     }
   }
 
-  handleBulkChange(values: Object, submit: boolean) {
+  handleBulkChange(
+    values: Object,
+    submit: boolean,
+    changeReason?: DataChangeReason
+  ) {
     const {onChange, store, formLazyChange} = this.props;
-    store.setValues(values);
+    store.setValues(
+      values,
+      undefined,
+      undefined,
+      undefined,
+      changeReason || {
+        type: 'input'
+      }
+    );
     // store.updateData(values);
 
     // store.items.forEach(formItem => {
@@ -1211,6 +1251,10 @@ export default class Form extends React.Component<FormProps, object> {
       await this.flush();
     }
 
+    if (!isAlive(store)) {
+      return;
+    }
+
     if (trimValues) {
       store.trimValues();
     }
@@ -1279,7 +1323,7 @@ export default class Form extends React.Component<FormProps, object> {
           }
 
           // 走到这里代表校验成功了
-          dispatchEvent('validateSucc', this.props.data);
+          dispatchEvent('validateSucc', createObject(this.props.data, values));
 
           if (target) {
             this.submitToTarget(filterTarget(target, values), values);
@@ -1399,6 +1443,9 @@ export default class Form extends React.Component<FormProps, object> {
                   __response: response
                 });
               });
+          } else if (shouldBlockedBySendOnApi(action.api || api, values)) {
+            // api存在，但是不满足sendOn时，走这里，不派发submitSucc事件
+            return;
           } else {
             clearPersistDataAfterSubmit && store.clearLocalPersistData();
             // type为submit，但是没有配api以及target时，只派发事件
@@ -1416,7 +1463,7 @@ export default class Form extends React.Component<FormProps, object> {
             return store.data;
           }
 
-          if (onFinished && onFinished(values, action) === false) {
+          if (onFinished && onFinished(values, action, store) === false) {
             return values;
           }
 
@@ -1675,10 +1722,12 @@ export default class Form extends React.Component<FormProps, object> {
       submitText,
       body,
       translate: __,
-      loadingConfig
+      loadingConfig,
+      wrapWithPanel
     } = this.props;
 
     if (
+      wrapWithPanel === false ||
       typeof actions !== 'undefined' ||
       !submitText ||
       (Array.isArray(body) &&
@@ -1774,22 +1823,33 @@ export default class Form extends React.Component<FormProps, object> {
 
       return (
         <div className={cx('Form-row')}>
-          {children.map((control, key) =>
-            ~['hidden', 'formula'].indexOf((control as any).type) ||
-            (control as any).mode === 'inline' ? (
+          {children.map((control, key) => {
+            const split = control.colSize?.split('/');
+            const colSize =
+              split?.[0] && split?.[1]
+                ? (split[0] / split[1]) * 100 + '%'
+                : control.colSize;
+            return ~['hidden', 'formula'].indexOf((control as any).type) ||
+              (control as any).mode === 'inline' ? (
               this.renderChild(control, key, otherProps)
             ) : (
               <div
                 key={key}
                 className={cx(`Form-col`, (control as Schema).columnClassName)}
+                style={{
+                  flex:
+                    colSize && !['1', 'auto'].includes(colSize)
+                      ? `0 0 ${colSize}`
+                      : '1'
+                }}
               >
                 {this.renderChild(control, '', {
                   ...otherProps,
                   mode: 'row'
                 })}
               </div>
-            )
-          )}
+            );
+          })}
         </div>
       );
     }
@@ -1926,7 +1986,8 @@ export default class Form extends React.Component<FormProps, object> {
       removeHook: this.removeHook,
       renderFormItems: this.renderFormItems,
       formItemDispatchEvent: this.formItemDispatchEvent,
-      formPristine: form.pristine
+      formPristine: form.pristine,
+      onFlushForm: this.flush
       // value: (control as any)?.name
       //   ? getVariable(form.data, (control as any)?.name, canAccessSuperData)
       //   : (control as any)?.value,
@@ -2262,30 +2323,7 @@ export default class Form extends React.Component<FormProps, object> {
   }
 }
 
-@Renderer({
-  type: 'form',
-  storeType: FormStore.name,
-  isolateScope: true,
-  storeExtendsData: (props: any) => props.inheritData,
-  shouldSyncSuperStore: (store, props, prevProps) => {
-    // 如果是 QuickEdit，让 store 同步 __super 数据。
-    if (
-      props.quickEditFormRef &&
-      props.onQuickChange &&
-      (isObjectShallowModified(prevProps.data, props.data) ||
-        isObjectShallowModified(prevProps.data.__super, props.data.__super) ||
-        isObjectShallowModified(
-          prevProps.data.__super?.__super,
-          props.data.__super?.__super
-        ))
-    ) {
-      return true;
-    }
-
-    return undefined;
-  }
-})
-export class FormRenderer extends Form {
+export class FormRendererBase extends Form {
   static contextType = ScopedContext;
 
   constructor(props: FormProps, context: IScopedContext) {
@@ -2299,13 +2337,7 @@ export class FormRenderer extends Form {
     super.componentDidMount();
 
     if (this.props.autoFocus) {
-      const scoped = this.context as IScopedContext;
-      const inputs = scoped.getComponents();
-      let focuableInput = find(
-        inputs,
-        input => input.focus
-      ) as ScopedComponentType;
-      focuableInput && setTimeout(() => focuableInput.focus!(), 200);
+      this.focus();
     }
   }
 
@@ -2314,6 +2346,16 @@ export class FormRenderer extends Form {
     scoped.unRegisterComponent(this);
 
     super.componentWillUnmount();
+  }
+
+  focus() {
+    const scoped = this.context as IScopedContext;
+    const inputs = scoped.getComponents();
+    let focuableInput = find(
+      inputs,
+      input => input.focus
+    ) as ScopedComponentType;
+    focuableInput && setTimeout(() => focuableInput.focus!(), 200);
   }
 
   doAction(
@@ -2356,6 +2398,8 @@ export class FormRenderer extends Form {
           );
         })
       );
+    } else if (action.actionType === 'clearError') {
+      return super.clearErrors();
     } else {
       return super.handleAction(e, action, ctx, throwErrors, delegate);
     }
@@ -2476,3 +2520,29 @@ export class FormRenderer extends Form {
     return this.getValues();
   }
 }
+
+@Renderer({
+  type: 'form',
+  storeType: FormStore.name,
+  isolateScope: true,
+  storeExtendsData: (props: any) => props.inheritData,
+  shouldSyncSuperStore: (store, props, prevProps) => {
+    // 如果是 QuickEdit，让 store 同步 __super 数据。
+    if (
+      props.quickEditFormRef &&
+      props.onQuickChange &&
+      (isObjectShallowModified(prevProps.data, props.data) ||
+        isObjectShallowModified(prevProps.data.__super, props.data.__super) ||
+        isObjectShallowModified(
+          prevProps.data.__super?.__super,
+          props.data.__super?.__super
+        ))
+    ) {
+      return true;
+    }
+
+    return undefined;
+  }
+})
+// 装饰器装饰后的类无法继承父类上的方法，所以多包了一层FormRendererBase用来继承
+export class FormRenderer extends FormRendererBase {}

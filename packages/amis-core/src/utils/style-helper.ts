@@ -391,9 +391,10 @@ export function insertEditCustomStyle(params: {
   customStyle: any;
   id?: string;
   doc?: Document;
+  customStyleClassPrefix?: string;
   [propName: string]: any;
 }) {
-  const {customStyle, doc, data} = params;
+  const {customStyle, doc, data, customStyleClassPrefix} = params;
   const id = params.id?.replace?.('u:', '') || params.id + '';
   let styles: any = {};
   traverseStyle(customStyle, '', styles);
@@ -404,10 +405,13 @@ export function insertEditCustomStyle(params: {
     index = `-${data.index}`;
   }
   if (!isEmpty(styles)) {
-    const className = `wrapperCustomStyle-${id}${index}`;
+    let className = `.wrapperCustomStyle-${id}${index}`;
+    if (customStyleClassPrefix) {
+      className = `${customStyleClassPrefix} ${className}`;
+    }
     Object.keys(styles).forEach((key: string) => {
       if (!isObject(styles[key])) {
-        content += `\n.${className} {\n  ${key}: ${
+        content += `\n${className} {\n  ${key}: ${
           resolveVariableAndFilter(
             styles[key].replace(/['|"]/g, ''),
             data,
@@ -417,7 +421,7 @@ export function insertEditCustomStyle(params: {
       } else if (key === 'root') {
         const res = map(
           styles[key],
-          (value, key) =>
+          (value: any, key) =>
             `${key}: ${
               resolveVariableAndFilter(
                 value.replace(/['|"]/g, ''),
@@ -426,11 +430,11 @@ export function insertEditCustomStyle(params: {
               ) || value
             };`
         );
-        content += `\n.${className} {\n  ${res.join('\n  ')}\n}`;
+        content += `\n${className} {\n  ${res.join('\n  ')}\n}`;
       } else if (/^root:/.test(key)) {
         const res = map(
           styles[key],
-          (value, key) =>
+          (value: any, key) =>
             `${key}: ${
               resolveVariableAndFilter(
                 value.replace(/['|"]/g, ''),
@@ -440,11 +444,11 @@ export function insertEditCustomStyle(params: {
             };`
         );
         const nowKey = key.replace('root', '');
-        content += `\n.${className} ${nowKey} {\n  ${res.join('\n  ')}\n}`;
+        content += `\n${className}${nowKey} {\n  ${res.join('\n  ')}\n}`;
       } else {
         const res = map(
           styles[key],
-          (value, key) =>
+          (value: any, key) =>
             `${key}: ${
               resolveVariableAndFilter(
                 value.replace(/['|"]/g, ''),
@@ -453,7 +457,7 @@ export function insertEditCustomStyle(params: {
               ) || value
             };`
         );
-        content += `\n.${className} ${key} {\n  ${res.join('\n  ')}\n}`;
+        content += `\n${className} ${key} {\n  ${res.join('\n  ')}\n}`;
       }
     });
   }

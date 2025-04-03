@@ -1,6 +1,6 @@
 import omit from 'lodash/omit';
 import {RendererProps} from '../factory';
-import {ConditionGroupValue, Api, SchemaNode} from '../types';
+import {ConditionGroupValue} from '../types';
 import {createObject} from '../utils/helper';
 import {RendererEvent} from '../utils/renderer-event';
 import {evalExpressionWithConditionBuilderAsync} from '../utils/tpl';
@@ -10,6 +10,7 @@ import {IContinueAction} from './ContinueAction';
 import {ILoopAction} from './LoopAction';
 import {IParallelAction} from './ParallelAction';
 import {ISwitchAction} from './SwitchAction';
+import {debug} from '../utils/debug';
 
 // 循环动作执行状态
 export enum LoopStatus {
@@ -69,6 +70,10 @@ export interface RendererAction {
 
 // 存储 Action 和类型的映射关系，用于后续查找
 const ActionTypeMap: {[key: string]: RendererAction} = {};
+// 存储动作属性排除列表
+const ActionIgnoreKey: MappingIgnoreMap = {};
+// 存储组件专有动作的属性排除列表
+const CmptIgnoreMap: MappingIgnoreMap = {};
 
 // 注册 Action
 export const registerAction = (type: string, action: RendererAction) => {
@@ -298,23 +303,11 @@ export const runAction = async (
     : renderer;
   // 动作配置
   const args = dataMapping(action.args, mergeData, (key: string) => {
-    const actionIgnoreKey: MappingIgnoreMap = {
-      ajax: ['adaptor', 'responseAdaptor', 'requestAdaptor', 'responseData']
-    };
-    const cmptIgnoreMap: MappingIgnoreMap = {
-      'input-table': ['condition'],
-      'table': ['condition'],
-      'table2': ['condition'],
-      'crud': ['condition'],
-      'combo': ['condition'],
-      'list': ['condition'],
-      'cards': ['condition']
-    };
     const curCmptType: string = targetComponent?.props?.type;
     const curActionType: string = action.actionType;
     const ignoreKey = [
-      ...(actionIgnoreKey[curActionType] || []),
-      ...(cmptIgnoreMap[curCmptType] || [])
+      ...(ActionIgnoreKey[curActionType] || []),
+      ...(CmptIgnoreMap[curCmptType] || [])
     ];
     return ignoreKey.includes(key);
   });
@@ -341,6 +334,9 @@ export const runAction = async (
 
   console.group?.(`run action ${action.actionType}`);
   console.debug(`[${action.actionType}] action args, data`, args, data);
+
+  debug('action', `run action ${action.actionType} with args`, args);
+  debug('action', `run action ${action.actionType} with data`, data);
 
   let stopped = false;
   const actionResult = await actionInstrance.run(
@@ -377,3 +373,68 @@ export const runAction = async (
   // 阻止后续动作执行
   (stopPropagation || stopped) && event.stopPropagation();
 };
+
+// 注册动作参数映射忽略键
+export const registerActionMappingIgnoreKey = (
+  actionType: string,
+  ignoreKey: string[],
+  replace: boolean = true
+) => {
+  if (replace) {
+    ActionIgnoreKey[actionType] = ignoreKey;
+    return;
+  }
+  ActionIgnoreKey[actionType] = [
+    ...(ActionIgnoreKey[actionType] || []),
+    ...ignoreKey
+  ];
+};
+
+// 注册多个动作参数映射忽略键
+export const registerActionMappingIgnoreMap = (
+  maps: MappingIgnoreMap,
+  replace: boolean = true
+) => {
+  Object.keys(maps).forEach(key => {
+    registerActionMappingIgnoreKey(key, maps[key], replace);
+  });
+};
+
+// 注册组件动作参数映射忽略键
+export const registerComponentActionMappingIgnoreKey = (
+  cmptType: string,
+  ignoreKey: string[],
+  replace: boolean = true
+) => {
+  if (replace) {
+    CmptIgnoreMap[cmptType] = ignoreKey;
+    return;
+  }
+  CmptIgnoreMap[cmptType] = [...(CmptIgnoreMap[cmptType] || []), ...ignoreKey];
+};
+
+// 注册多个组件动作参数映射忽略键
+export const registerComponentActionMappingIgnoreMap = (
+  maps: MappingIgnoreMap,
+  replace: boolean = true
+) => {
+  Object.keys(maps).forEach(key => {
+    registerComponentActionMappingIgnoreKey(key, maps[key], replace);
+  });
+};
+
+// 注册默认忽略键（将来是否需要移到相应的模块中）
+registerActionMappingIgnoreMap({
+  ajax: ['adaptor', 'responseAdaptor', 'requestAdaptor', 'responseData']
+});
+
+// 注册组件默认忽略键（将来是否需要移到相应的渲染器中）
+registerComponentActionMappingIgnoreMap({
+  'input-table': ['condition'],
+  'table': ['condition'],
+  'table2': ['condition'],
+  'crud': ['condition'],
+  'combo': ['condition'],
+  'list': ['condition'],
+  'cards': ['condition']
+});

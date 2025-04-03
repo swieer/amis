@@ -45,7 +45,7 @@ import type {
   RowSelectionProps,
   ExpandableProps,
   AutoFillHeightObject
-} from 'amis-ui/lib/components/table';
+} from 'amis-ui/lib/components/table/index';
 import {
   BaseSchema,
   SchemaObject,
@@ -57,7 +57,6 @@ import {ActionSchema} from '../Action';
 import HeadCellSearchDropDown from './HeadCellSearchDropdown';
 import './TableCell';
 import './ColumnToggler';
-// import AdvancedQuery from './AdvancedQuery';
 import {SchemaQuickEdit} from '../QuickEdit';
 
 import type {TestIdBuilder} from 'amis-core';
@@ -147,6 +146,16 @@ export interface ColumnSchema {
    * 内容居左、居中、居右
    */
   align?: string;
+
+  /**
+   * 标题内容居左、居中、居右
+   */
+  headerAlign?: 'left' | 'center' | 'right';
+
+  /**
+   * 列垂直对齐方式
+   */
+  vAlign?: 'top' | 'middle' | 'bottom';
 
   /**
    * 是否固定在左侧/右侧
@@ -699,6 +708,7 @@ export default class Table2 extends React.Component<Table2Props, object> {
   componentDidUpdate(prevProps: Table2Props) {
     const props = this.props;
     const store = props.store;
+
     changedEffect(
       ['orderBy', 'columnsTogglable', 'canAccessSuperData'],
       prevProps,
@@ -720,22 +730,7 @@ export default class Table2 extends React.Component<Table2Props, object> {
         (props.data !== prevProps.data ||
           (typeof props.source === 'string' && isPureVariable(props.source))))
     ) {
-      // console.log(
-      //   'zhengxi table2 syncSelected -- component did update any change',
-      //   prevProps.source,
-      //   prevProps.value,
-      //   prevProps.items,
-      //   props.source,
-      //   props.value,
-      //   props.items,
-      //   prevProps.source !== props.source,
-      //   prevProps.value !== props.value,
-      //   prevProps.items !== props.items,
-      //   props.store.selectedRows.length,
-      //   prevProps.store.selectedRows.length
-      // );
-      // 自定义组件会引起重载，先屏蔽syncSelected试试
-      Table2.syncRows(store, props, prevProps); // && this.syncSelected();
+      Table2.syncRows(store, props, prevProps) && this.syncSelected();
     } else if (isArrayChildrenModified(prevProps.selected!, props.selected!)) {
       const keyField = store.keyField;
       const prevSelectedRows = store.selectedRows
@@ -909,24 +904,19 @@ export default class Table2 extends React.Component<Table2Props, object> {
         const clone = {...column} as any;
 
         let titleSchema: any = null;
+        const title = clone.title || clone.label;
         const titleProps = {
-          popOverContainer: popOverContainer || this.getPopOverContainer,
-          // 表头增加required属性支持
-          value: column.required
-            ? `*${column.title || column.label}`
-            : column.title || column.label
+          ...data,
+          popOverContainer: popOverContainer || this.getPopOverContainer
         };
         if (isObject(column.title)) {
           titleSchema = cloneDeep(column.title);
-        } else if (
-          typeof column.title === 'string' ||
-          typeof column.label === 'string'
-        ) {
-          titleSchema = {type: 'plain'};
+        } else if (typeof title === 'string') {
+          titleSchema = {type: 'plain', tpl: title};
         }
 
-        if (column.align) {
-          titleSchema.align = column.align;
+        if (column.headerAlign || column.align) {
+          titleSchema.align = column.headerAlign || column.align;
           titleSchema.className = 'flex-1';
         }
 
@@ -1322,7 +1312,7 @@ export default class Table2 extends React.Component<Table2Props, object> {
       {
         data: {
           ...this.props.data,
-          record,
+          ...record,
           rowIndex
         }
       }
@@ -1584,14 +1574,7 @@ export default class Table2 extends React.Component<Table2Props, object> {
     const {onAction} = this.props;
 
     // todo
-    onAction && onAction(e, action, ctx);
-  }
-
-  @autobind
-  handleAdvancedQuery(data: any) {
-    const {onSearch} = this.props;
-    console.log('zhengxi advan query -- ', data);
-    onSearch && onSearch({advancedQuery: '高级查询'});
+    return onAction?.(e, action, ctx);
   }
 
   renderActions(region: string) {
@@ -1599,15 +1582,18 @@ export default class Table2 extends React.Component<Table2Props, object> {
       actions,
       render,
       store,
-      classPrefix: ns,
       classnames: cx,
       data,
       columnsTogglable,
-      dispatchEvent,
-      ...rest
+      dispatchEvent
     } = this.props;
     actions = Array.isArray(actions) ? actions.concat() : [];
-    const config = isObject(columnsTogglable) ? columnsTogglable : {};
+    const config = isObject(columnsTogglable)
+      ? columnsTogglable
+      : {
+          align: 'left'
+        };
+
     // 现在默认从crud里传进来的columnsTogglable是boolean类型
     // table单独配置的是SchemaNode类型
     // 如果是在crud里 配置了columnsTogglable相关配置 那么还是在这里渲染
@@ -1651,27 +1637,6 @@ export default class Table2 extends React.Component<Table2Props, object> {
         )
       });
     }
-    // 增加高级查询
-    // actions.push({
-    //   type: 'button',
-    //   children: (
-    //     <AdvancedQuery
-    //       {...rest}
-    //       columns={store.columns}
-    //       tooltip={{
-    //         content: '高级查询',
-    //         placement: 'bottom'
-    //       }}
-    //       classnames={cx}
-    //       classPrefix={ns}
-    //       key="columns-toggable"
-    //       size={config?.size || 'sm'}
-    //       icon={config?.icon}
-    //       label="高级查询"
-    //       onQuery={this.handleAdvancedQuery}
-    //     />
-    //   )
-    // });
 
     return Array.isArray(actions) && actions.length ? (
       <div className={cx('Table-toolbar')}>
@@ -1702,19 +1667,16 @@ export default class Table2 extends React.Component<Table2Props, object> {
   ): Promise<any> {
     const {dispatchEvent, data, store} = this.props;
 
-    const rendererEvent = await dispatchEvent(
+    store.updateSelected(selectedRowKeys);
+    this.syncSelected();
+
+    await dispatchEvent(
       'selectedChange',
       createObject(data, {
         selectedItems: selectedRows,
         unSelectedItems: unSelectedRows
       })
     );
-
-    if (rendererEvent?.prevented) {
-      return rendererEvent?.prevented;
-    }
-    store.updateSelected(selectedRowKeys);
-    this.syncSelected();
   }
 
   @autobind

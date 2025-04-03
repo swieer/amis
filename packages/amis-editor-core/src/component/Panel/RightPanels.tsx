@@ -1,6 +1,6 @@
 import {observer} from 'mobx-react';
 import React from 'react';
-import {Tab, Tabs} from 'amis';
+import {Tab, Tabs, toast} from 'amis';
 import cx from 'classnames';
 import {EditorManager} from '../../manager';
 import {EditorStoreType} from '../../store/editor';
@@ -10,12 +10,13 @@ import {findDOMNode} from 'react-dom';
 import {PanelItem} from '../../plugin';
 import {WidthDraggableBtn} from '../base/WidthDraggableBtn';
 
-interface RightPanelsProps {
+export interface RightPanelsProps {
   store: EditorStoreType;
   manager: EditorManager;
   theme?: string;
   appLocale?: string;
   amisEnv?: any;
+  readonly?: boolean;
 }
 
 interface RightPanelsStates {
@@ -62,31 +63,36 @@ export class RightPanels extends React.Component<
     return findDOMNode(this) as HTMLElement;
   }
 
+  @autobind
+  handlePanelChangeValue(
+    ...arg: Parameters<typeof this.props.manager.panelChangeValue>
+  ) {
+    const {manager} = this.props;
+
+    manager.panelChangeValue(...arg);
+  }
+
   render() {
-    const {store, manager, theme} = this.props;
+    const {store, manager, theme, readonly} = this.props;
     const {isOpenStatus, isFixedStatus} = this.state;
     const panels = store.getPanels();
     const id = store.activeId;
     const node = store.getNodeById(id);
     const panelKey = store.getPanelKey();
     const renderPanel = (panel: PanelItem) => {
-      const renderData = {
-        id,
-        info: node?.info,
-        path: node?.path,
-        node: node,
-        value: store.value,
-        onChange: manager.panelChangeValue,
-        store: store,
-        manager: manager,
-        popOverContainer: this.getPopOverContainer
-      };
-      if (panel.title === '导出按钮配置') {
-        console.log('zhengxi render panel', panel, store, node);
-        console.log('zhengxi pandel render -- ', renderData);
-      }
       return panel.render ? (
-        panel.render(renderData)
+        panel.render({
+          id,
+          info: node?.info,
+          path: node?.path,
+          node: node,
+          value: store.value,
+          onChange: this.handlePanelChangeValue,
+          store: store,
+          manager: manager,
+          popOverContainer: this.getPopOverContainer,
+          readonly
+        })
       ) : panel.component ? (
         <panel.component
           node={node}
@@ -95,10 +101,11 @@ export class RightPanels extends React.Component<
           info={node?.info}
           path={node?.path}
           value={store.value}
-          onChange={manager.panelChangeValue}
+          onChange={this.handlePanelChangeValue}
           store={store}
           manager={manager}
           popOverContainer={this.getPopOverContainer}
+          readonly={readonly}
         />
       ) : null;
     };
